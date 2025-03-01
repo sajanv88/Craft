@@ -1,0 +1,37 @@
+name: Publish CraftModule NuGet Packages
+on:
+    push:
+        tags:
+            - 'Release/v*'
+jobs:
+    build-and-publish:
+        runs-on: ubuntu-latest
+        
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setup dotnet
+              uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: '9.0.x'
+            
+            -   name: Restore dependencies
+                run: dotnet restore
+            
+            -   name: Build all projects
+                run: dotnet build --configuration Release --no-restore
+            
+            -   name: Pack all projects
+                run: |
+                    mkdir -p ./artifacts
+                    dotnet pack src/Craft.CraftModule/Craft.CraftModule.csproj --configuration Release --no-build --output ./artifacts
+                working-directory: ${{ github.workspace }}
+            
+            -   name: Push NuGet packages
+                run: |
+                    for nupkg in ./artifacts/*.nupkg; do
+                      dotnet nuget push "$nupkg" -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
+                    done
+                env:
+                    NUGET_AUTH_TOKEN: ${{ secrets.NUGET_KEY }}
+            
+

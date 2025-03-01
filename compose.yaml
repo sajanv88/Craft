@@ -1,0 +1,6 @@
+﻿services:
+  craft.api:
+    image: craft.api
+    build:
+      context: .
+      dockerfile: src/Craft.Api/Dockerfile

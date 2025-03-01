@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{EBC0D65B-35BA-4815-938B-52B8C397703F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Craft.Api", "src\Craft.Api\Craft.Api.csproj", "{5B1C6474-81D9-4020-A9CB-084BFCC26210}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Craft.CraftModule", "src\Craft.CraftModule\Craft.CraftModule.csproj", "{42217B9E-186E-44B9-953C-CD0ED15CE461}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5B1C6474-81D9-4020-A9CB-084BFCC26210} = {EBC0D65B-35BA-4815-938B-52B8C397703F}
+		{42217B9E-186E-44B9-953C-CD0ED15CE461} = {EBC0D65B-35BA-4815-938B-52B8C397703F}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5B1C6474-81D9-4020-A9CB-084BFCC26210}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B1C6474-81D9-4020-A9CB-084BFCC26210}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B1C6474-81D9-4020-A9CB-084BFCC26210}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B1C6474-81D9-4020-A9CB-084BFCC26210}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42217B9E-186E-44B9-953C-CD0ED15CE461}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42217B9E-186E-44B9-953C-CD0ED15CE461}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42217B9E-186E-44B9-953C-CD0ED15CE461}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42217B9E-186E-44B9-953C-CD0ED15CE461}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

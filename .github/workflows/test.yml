@@ -25,11 +25,13 @@ jobs:
               run: dotnet build --no-restore --configuration Release
             
             - name: Run Tests
-              id: test
+              id: run_tests
               run: |
                   set +e
-                  dotnet test tests/Craft.CraftmoduleTests --no-build --configuration Release --logger trx > test-results.txt
-                  echo "RESULT=$(cat test-results.txt)" >> $GITHUB_ENV
+                  OUTPUT=$(dotnet test tests/Craft.CraftmoduleTests --no-build --configuration Release --logger "trx" | tee test-results.txt)
+                  echo "RESULT<<EOF" >> $GITHUB_ENV
+                  echo "$OUTPUT" >> $GITHUB_ENV
+                  echo "EOF" >> $GITHUB_ENV
                   set -e
             
             - name: Create/Update PR Comment

@@ -36,3 +36,58 @@ app.MapCraftModulesEndpoint();
 ```
 And that’s it! Your endpoints are now ready to roll. 🚀
 
+### Simple todo api example
+
+```csharp
+
+public sealed class Todo
+{
+    public int Id { get; set; }
+    public string Title { get; set; }
+}
+
+public sealed class TodoModule : CraftModule
+{
+    private List<Todo> _todos = new List<Todo>
+    {
+        new Todo { Id = 1, Title = "Buy milk" },
+        new Todo { Id = 2, Title = "Walk the dog" },
+    };
+    
+    public override IEndpointRouteBuilder AddRoutes(
+        IEndpointRouteBuilder builder
+    {
+        var endpoints = builder.MapGroup("/api/todos");
+        endpoints.MapGet("/", () => _todos);
+        endpoints.MapGet("/{id}", (int id) => _todos.FirstOrDefault(x => x.Id == id));
+        endpoints.MapPut("/", (string title) => 
+        {
+            var todo = new Todo { Id = _todos.Count + 1, Title = title };
+            _todos.Add(todo);
+            return Results.Created($"/api/todos/{todo.Id}", todo);
+        });
+        endpoints.MapDelete("/{id}", (int id) => 
+        {
+            var todo = _todos.FirstOrDefault(x => x.Id == id);
+            if (todo == null)
+            {
+                return Results.NotFound();
+            }
+            _todos.Remove(todo);
+            return Results.NoContent();
+        });
+        endpoints.MapPatch("/{id}", (int id, string title) => 
+        {
+            var todo = _todos.FirstOrDefault(x => x.Id == id);
+            if (todo == null)
+            {
+                return Results.NotFound();
+            }
+            todo.Title = title;
+            return Results.Ok(todo);
+        });
+        return builder;
+    }
+}
+```
+

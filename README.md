@@ -36,7 +36,7 @@ Just inherit from `CraftDbContext` and add your entities. Here’s an example:
 // AppDbContext.cs
 
 public class AppDbContext(DbContextOptions<AppDbContext> options)
-    : CraftDbContext<ApiDbContext>(options)
+    : CraftDbContext<AppDbContext>(options)
 {
     public DbSet<TodoEntity> Todos { get; set; }
 }

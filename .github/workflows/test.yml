@@ -6,7 +6,7 @@ on:
 
 jobs:
     test:
-        name: Run Craft.CraftmoduleTests
+        name: Run Craft.CraftModuleTests
         runs-on: ubuntu-latest
         
         steps:
@@ -21,6 +21,13 @@ jobs:
             - name: Restore Dependencies
               run: dotnet restore
             
+            - name: Verify Test Project Exists
+              run: |
+                  if [ ! -f tests/Craft.CraftModuleTests/Craft.CraftModuleTests.csproj ]; then
+                    echo "❌ Test project not found at tests/Craft.CraftModuleTests! Check your path."
+                    exit 1
+                  fi
+            
             - name: Build Solution
               run: dotnet build --no-restore --configuration Release
             
@@ -28,7 +35,7 @@ jobs:
               id: run_tests
               run: |
                   set +e
-                  OUTPUT=$(dotnet test tests/Craft.CraftmoduleTests --no-build --configuration Release --logger "trx" | tee test-results.txt)
+                  OUTPUT=$(dotnet test tests/Craft.CraftModuleTests --no-build --configuration Release --logger "trx" | tee test-results.txt)
                   echo "RESULT<<EOF" >> $GITHUB_ENV
                   echo "$OUTPUT" >> $GITHUB_ENV
                   echo "EOF" >> $GITHUB_ENV
@@ -38,7 +45,7 @@ jobs:
               uses: thollander/actions-comment-pull-request@v2
               with:
                   message: |
-                      🚀 **Test Results for Craft.CraftmoduleTests**
+                      🚀 **Test Results for Craft.CraftModuleTests**
                       ```
                       ${{ env.RESULT }}
                       ```

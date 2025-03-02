@@ -1,0 +1,45 @@
+name: Run Tests on PR Changes
+
+on:
+    pull_request:
+        types: [opened, synchronize, reopened]
+
+jobs:
+    test:
+        name: Run Craft.CraftmoduleTests
+        runs-on: ubuntu-latest
+        
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+            
+            - name: Setup .NET
+              uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: '9.0.x' # Adjust if needed
+            
+            - name: Restore Dependencies
+              run: dotnet restore
+            
+            - name: Build Solution
+              run: dotnet build --no-restore --configuration Release
+            
+            - name: Run Tests
+              id: test
+              run: |
+                  set +e
+                  dotnet test tests/Craft.CraftmoduleTests --no-build --configuration Release --logger trx > test-results.txt
+                  echo "RESULT=$(cat test-results.txt)" >> $GITHUB_ENV
+                  set -e
+            
+            - name: Create/Update PR Comment
+              uses: thollander/actions-comment-pull-request@v2
+              with:
+                  message: |
+                      🚀 **Test Results for Craft.CraftmoduleTests**
+                      ```
+                      ${{ env.RESULT }}
+                      ```
+                  comment_tag: test-results
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

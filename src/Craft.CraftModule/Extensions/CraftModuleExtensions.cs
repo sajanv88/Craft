@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 /// </summary>
 public static class CraftModuleExtensions
 {
-    private static HashSet<Type> InitializedModules = [];
+    public static readonly HashSet<Type> InitializedModules = [];
 
     /// <summary>
     /// Discovers and registers all Craft modules from the specified assembly.
@@ -34,7 +34,7 @@ public static class CraftModuleExtensions
         var moduleTypes = assembly
             .GetTypes()
             .Where(t =>
-                typeof(CraftModule).IsAssignableFrom(t) && !t.IsAbstract
+                t is { IsClass: true, IsAbstract: false } && t.IsSubclassOf(typeof(CraftModule))
             );
 
         foreach (var type in moduleTypes)
@@ -86,7 +86,6 @@ public static class CraftModuleExtensions
         foreach (var m in modules)
         {
             InitializeModule(m, services);
-            services.AddKeyedSingleton(m, module.Name); // Register module in DI
         }
     }
 
@@ -120,6 +119,7 @@ public static class CraftModuleExtensions
     /// Initializes a Craft module and ensures its dependencies are satisfied.
     /// </summary>
     /// <param name="module">The module to initialize.</param>
+    /// <param name="services"></param>
     /// <exception cref="InvalidOperationException">
     /// Thrown if a required dependency for the module is not initialized.
     /// </exception>
@@ -161,5 +161,6 @@ public static class CraftModuleExtensions
         InitializedModules.Add(moduleType);
         Console.WriteLine($"🚀 {moduleType.Name} initialized.");
         module.PostInitialization(services);
+        services.AddSingleton(moduleType, module);
     }
 }

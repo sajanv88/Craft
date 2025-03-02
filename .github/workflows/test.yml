@@ -1,8 +1,11 @@
-name: Run Tests on PR Changes
+name: Testing
 
 on:
     pull_request:
         types: [opened, synchronize, reopened]
+
+permissions:
+    pull-requests: write
 
 jobs:
     test:

@@ -1,4 +1,5 @@
 using Craft.Api.Infrastructure;
+using Craft.Api.Modules;
 using Craft.CraftModule;
 using Craft.CraftModule.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -40,7 +41,7 @@ public sealed class ApiModule : CraftModule
         IEndpointRouteBuilder builder
     )
     {
-        var app = builder.MapGet("/", () => "Hello World!");
+        var app = builder.MapGet("/", (TodoModule todoModule) => todoModule.GetModuleName());
         return builder;
     }
 }

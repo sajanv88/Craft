@@ -43,4 +43,6 @@ public sealed class TodoModule : CraftModule.CraftModule
             $"{nameof(TodoEntity)} configured in {nameof(TodoModule)}"
         );
     }
+
+    public string GetModuleName() => nameof(TodoModule);
 }

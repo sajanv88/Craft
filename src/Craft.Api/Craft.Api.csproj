@@ -24,7 +24,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Craft.CraftModule\Craft.CraftModule.csproj" />
+      
+      <ProjectReference Include="..\Craft.KeycloakModule\Craft.KeycloakModule.csproj" />
     </ItemGroup>
 
 </Project>

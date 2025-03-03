@@ -34,7 +34,8 @@ public static class CraftModuleExtensions
         var moduleTypes = assembly
             .GetTypes()
             .Where(t =>
-                t is { IsClass: true, IsAbstract: false } && t.IsSubclassOf(typeof(CraftModule))
+                t is { IsClass: true, IsAbstract: false }
+                && t.IsSubclassOf(typeof(CraftModule))
             );
 
         foreach (var type in moduleTypes)
@@ -140,19 +141,41 @@ public static class CraftModuleExtensions
             return;
         }
 
+        Console.WriteLine(
+            $"🔍 Discovering dependencies for {moduleType.Name}..."
+        );
+
         var dependsOnAttributes = moduleType
             .GetCustomAttributes(typeof(DependsOnAttribute), true)
             .Cast<DependsOnAttribute>();
 
+        if (!dependsOnAttributes.Any())
+        {
+            Console.WriteLine(
+                $"📦 No dependencies found for {moduleType.Name}."
+            );
+        }
+
         foreach (var attribute in dependsOnAttributes)
         {
+            Console.WriteLine(
+                $"📦 Total {attribute.Dependencies.Length} dependencies found for {moduleType.Name}."
+            );
+
             foreach (var dependency in attribute.Dependencies)
             {
                 if (!InitializedModules.Contains(dependency))
                 {
-                    throw new InvalidOperationException(
-                        $"Module {dependency.Name} is required for {moduleType.Name}."
+                    Console.WriteLine(
+                        $"🔗 {moduleType.Name} depends on {dependency.Name}. Initializing dependency... ⚙️"
                     );
+                    // Create dependency instance
+                    var dependencyModule = (CraftModule)
+                        Activator.CreateInstance(dependency)!;
+                    // Add the dependency to the module registry
+                    ModuleRegistry.Register(dependency);
+                    // Initialize the dependency
+                    InitializeModule(dependencyModule, services);
                 }
             }
         }

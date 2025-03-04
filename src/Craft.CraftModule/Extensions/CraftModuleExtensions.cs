@@ -108,6 +108,7 @@ public static class CraftModuleExtensions
             .Select(type => (CraftModule)Activator.CreateInstance(type)!)
             .ToList();
 
+        
         foreach (var module in modules)
         {
             module.AddRoutes(app);

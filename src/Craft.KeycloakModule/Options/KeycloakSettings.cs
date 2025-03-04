@@ -9,4 +9,6 @@ public sealed class KeycloakSettings
     public string Audience { get; set; } = string.Empty;
     
     public bool VerifyTokenAudience { get; set; } = true;
+    
+    public string MetadataAddress { get; set; } = string.Empty;
 }

@@ -1,33 +1,49 @@
-using Craft.KeycloakModule.Options;
 using Keycloak.AuthServices.Authentication;
 using Keycloak.AuthServices.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Craft.KeycloakModule.Extensions;
-
+// opt.Authority = keycloakSettings.Authority;
+// opt.Audience = keycloakSettings.Audience;
+// opt.MetadataAddress = keycloakSettings.MetadataAddress;
+//                
+// opt.TokenValidationParameters = new TokenValidationParameters
+// {
+//     ValidIssuer = keycloakSettings.Authority,
+//     ValidateIssuer = true,
+//     ValidateAudience = true,
+//     ValidateLifetime = true,
+//     ValidateIssuerSigningKey = true,
+// };
+//                 
+// opt.Events = new JwtBearerEvents
+// {
+//     OnAuthenticationFailed = c =>
+//     {
+//         Console.WriteLine($"🔴 Authentication failed: {c.Exception.Message}");
+//         return Task.CompletedTask;
+//     },
+//     OnTokenValidated = c =>
+//     {
+//         Console.WriteLine("✅ Token successfully validated!");
+//         return Task.CompletedTask;
+//     }
+// };
 public static class CraftKeycloakExtensions
 {
-    public static IServiceCollection AddCraftKeycloakAuthentication(this IServiceCollection services, Action<KeycloakSettings> settings)
+    public static IServiceCollection AddCraftKeycloakAuthorization(this IServiceCollection services,
+        Action<KeycloakAuthorizationOptions>? configureKeycloakAuthorizationOptions = null)
     {
-        var keycloakSettings = new KeycloakSettings();
-        settings.Invoke(keycloakSettings);
-        services.AddKeycloakWebApiAuthentication(options =>
-        {
-            options.Realm = keycloakSettings.Realm;
-            options.Audience = keycloakSettings.Audience;
-            options.AuthServerUrl = keycloakSettings.Authority;
-            options.VerifyTokenAudience = keycloakSettings.VerifyTokenAudience;
-        });
-
-        services.AddKeycloakAuthorization(options =>
-        {
-            options.Resource = keycloakSettings.ClientId;
-            options.AuthServerUrl = keycloakSettings.Authority;
-            options.Realm = keycloakSettings.Realm;
-        });
-
-        services.AddAuthorizationBuilder();
-        
+        services.AddKeycloakAuthorization(configureKeycloakAuthorizationOptions);
+        return services;
+    }
+    
+    public static IServiceCollection AddCraftKeycloakAuthentication(this IServiceCollection services,
+        Action<KeycloakAuthenticationOptions> keycloakAuthenticationOptions,
+        Action<JwtBearerOptions>? configureJwtBearerOptions = null)
+    {
+        services.AddKeycloakWebApiAuthentication(keycloakAuthenticationOptions, configureJwtBearerOptions);
         return services;
     }
 }

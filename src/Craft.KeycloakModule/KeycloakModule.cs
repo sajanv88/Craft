@@ -16,7 +16,7 @@ public class KeycloakModule : CraftModule.CraftModule
     )
     {
         var endpoint = builder.MapGroup("/api/keycloak");
-        endpoint.MapGet("/", () => "Hello from KeycloakModule!");
+        endpoint.MapGet("/", () => "Hello from KeycloakModule!").RequireAuthorization();
         return builder;
     }
 

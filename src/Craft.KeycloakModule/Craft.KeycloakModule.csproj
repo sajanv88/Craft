@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Duende.AccessTokenManagement" Version="3.2.0" />
       <PackageReference Include="Keycloak.AuthServices.Authentication" Version="2.6.0" />
       <PackageReference Include="Keycloak.AuthServices.Authorization" Version="2.6.0" />
       <PackageReference Include="Keycloak.AuthServices.Sdk" Version="2.6.0" />

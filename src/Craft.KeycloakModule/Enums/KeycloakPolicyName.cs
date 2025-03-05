@@ -1,7 +1,7 @@
 namespace Craft.KeycloakModule.Enums;
 
-public enum KeycloakRoles
+public enum KeycloakPolicyName
 {
-    Admin,
     User,
+    Admin,
 }

@@ -1,6 +1,5 @@
 using Craft.Api.Extensions;
 using Craft.Api.Infrastructure;
-
 using Craft.CraftModule;
 using Craft.CraftModule.Attributes;
 using Craft.CraftModule.Extensions;
@@ -8,7 +7,6 @@ using Craft.KeycloakModule;
 using Craft.KeycloakModule.Enums;
 using Craft.KeycloakModule.Extensions;
 using Craft.KeycloakModule.Options;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -16,7 +14,9 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var keycloakSettings = builder.Configuration.GetSection("KeycloakSettings").Get<KeycloakSettings>();
+var keycloakSettings = builder
+    .Configuration.GetSection("KeycloakSettings")
+    .Get<KeycloakSettings>();
 
 builder.Services.AddCraftKeycloakAuthorization(options =>
 {
@@ -24,44 +24,45 @@ builder.Services.AddCraftKeycloakAuthorization(options =>
     options.Resource = keycloakSettings.ClientId;
 });
 
-builder.Services.AddCraftKeycloakAuthentication(options =>
-{
-    options.Realm = keycloakSettings.Realm;
-    options.Audience = keycloakSettings.Audience;
-    options.AuthServerUrl = keycloakSettings.BaseUrl;
-
-}, options =>
-{
-    options.MetadataAddress = keycloakSettings.MetadataAddress;
-    options.TokenValidationParameters = new TokenValidationParameters
+builder.Services.AddCraftKeycloakAuthentication(
+    options =>
     {
-        ValidIssuer = keycloakSettings.Authority,
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-    };
-    options.Events = new JwtBearerEvents
+        options.Realm = keycloakSettings.Realm;
+        options.Audience = keycloakSettings.Audience;
+        options.AuthServerUrl = keycloakSettings.BaseUrl;
+    },
+    options =>
     {
-        OnAuthenticationFailed = c =>
+        options.MetadataAddress = keycloakSettings.MetadataAddress;
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            Console.WriteLine($"🔴 Authentication failed: {c.Exception.Message}");
-            return Task.CompletedTask;
-        },
-        OnTokenValidated = c =>
+            ValidIssuer = keycloakSettings.Authority,
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+        };
+        options.Events = new JwtBearerEvents
         {
-            Console.WriteLine("✅ Token successfully validated!");
-            return Task.CompletedTask;
-        }
-    };
-});
+            OnAuthenticationFailed = c =>
+            {
+                Console.WriteLine(
+                    $"🔴 Authentication failed: {c.Exception.Message}"
+                );
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = c =>
+            {
+                Console.WriteLine("✅ Token successfully validated!");
+                return Task.CompletedTask;
+            },
+        };
+    }
+);
 
 builder.Services.AddOpenApiOauth(builder.Configuration);
 
-
-
 builder.Services.AddCraftModulesFromAssembly(typeof(Program).Assembly);
-
 
 builder.Services.AddDbContext<ApiDbContext>(o =>
 {
@@ -70,7 +71,6 @@ builder.Services.AddDbContext<ApiDbContext>(o =>
     );
     o.UseNpgsql(connectionString);
 });
-
 
 var app = builder.Build();
 
@@ -109,22 +109,7 @@ public sealed class ApiModule : CraftModule
     )
     {
         var app = builder.MapGroup("/api");
-        app.MapGet("/", () => "Hello from ApiModule!").RequireAuthorization(KeycloakRoles.User.ToString());
-        
-        app.MapGet(
-            "/auth",
-            (KeycloakModule keycloak, HttpContext ctx) =>
-            {
-                var u = ctx.User;
-                return Results.Ok(new { Data = u.Claims.ToDictionary(c => c.Type, c => c.Value) });
-            }).RequireAuthorization(nameof(KeycloakPolicyName.User));
-        app.MapGet(
-            "/admin",
-            (KeycloakModule keycloak, HttpContext ctx) =>
-            {
-                var u = ctx.User;
-                return Results.Ok(new { Data = u.Claims.ToDictionary(c => c.Type, c => c.Value) });
-            }).RequireAuthorization(nameof(KeycloakPolicyName.Admin));
+        app.MapGet("/", () => "Hello from ApiModule!");
         return builder;
     }
 }

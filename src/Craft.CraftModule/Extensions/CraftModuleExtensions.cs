@@ -79,9 +79,10 @@ public static class CraftModuleExtensions
     private static void RegisterModule(IServiceCollection services, Type module)
     {
         ModuleRegistry.Register(module);
+        
         var modules = ModuleRegistry
             .GetRegisteredModules()
-            .Select(type => (CraftModule)Activator.CreateInstance(type)!)
+            .Select(type => GetInstance(type, services))
             .ToList();
 
         foreach (var m in modules)
@@ -89,6 +90,21 @@ public static class CraftModuleExtensions
             InitializeModule(m, services);
         }
     }
+
+    private static CraftModule GetInstance(Type type, IServiceCollection services)
+    {
+        var isConstructorInfo = type.GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 0);
+        if (isConstructorInfo is null) return (CraftModule)Activator.CreateInstance(type)!;
+        var sp = services.BuildServiceProvider();
+        return (CraftModule)ActivatorUtilities.CreateInstance(sp, type);
+    }
+    
+    private static CraftModule GetInstance(Type type, IServiceProvider sp)
+    {
+        var isConstructorInfo = type.GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 0);
+        if (isConstructorInfo is null) return (CraftModule)Activator.CreateInstance(type)!;
+        return (CraftModule)ActivatorUtilities.CreateInstance(sp, type);
+    } 
 
     /// <summary>
     /// Maps endpoints for all registered Craft modules.
@@ -103,13 +119,12 @@ public static class CraftModuleExtensions
         this WebApplication app
     )
     {
-        var modules = ModuleRegistry
-            .GetRegisteredModules()
-            .Select(type => (CraftModule)Activator.CreateInstance(type)!)
+        var modules = InitializedModules
+            .Select(type => GetInstance(type, app.Services))
             .ToList();
 
         foreach (var module in modules)
-        {
+        {   
             module.AddRoutes(app);
         }
 
@@ -170,8 +185,7 @@ public static class CraftModuleExtensions
                         $"🔗 {moduleType.Name} depends on {dependency.Name}. Initializing dependency... ⚙️"
                     );
                     // Create dependency instance
-                    var dependencyModule = (CraftModule)
-                        Activator.CreateInstance(dependency)!;
+                    var dependencyModule = GetInstance(dependency, services);
                     // Add the dependency to the module registry
                     ModuleRegistry.Register(dependency);
                     // Initialize the dependency

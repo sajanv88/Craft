@@ -14,6 +14,7 @@ namespace Craft.CraftModule;
 /// </remarks>
 public abstract class CraftModule : ICraftModuleDatabase, ICraftModuleHook
 {
+    
     /// <summary>
     /// Initializes the module and ensures all dependencies are satisfied.
     /// </summary>

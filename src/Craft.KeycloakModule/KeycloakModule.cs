@@ -16,16 +16,20 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Craft.KeycloakModule;
 
-public class KeycloakModule : CraftModule.CraftModule
+public sealed class KeycloakModule : CraftModule.CraftModule
 {
+    private readonly IConfiguration _configuration;
+    public KeycloakModule() {}
+    public KeycloakModule(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
     public override void PostInitialization(IServiceCollection services)
     {
         services.AddScoped<KeycloakAdminService>();
-
-        var configuration = services
-            .BuildServiceProvider()
-            .GetService<IConfiguration>()!;
-        var keycloakSettings = configuration
+        
+        
+        var keycloakSettings = _configuration
             .GetSection("KeycloakSettings")
             .Get<KeycloakSettings>();
 

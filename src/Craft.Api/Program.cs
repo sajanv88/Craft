@@ -91,6 +91,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseCraftGeneralException();
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

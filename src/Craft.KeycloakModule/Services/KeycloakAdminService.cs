@@ -8,7 +8,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Craft.KeycloakModule.Services;
 
-public class KeycloakAdminService(
+/// <summary>
+///     A service that provides methods for interacting with the Keycloak Admin API.
+/// </summary>
+/// <param name="keycloakAdminApiClient"></param>
+/// <param name="configuration"></param>
+/// <param name="logger"></param>
+public sealed class KeycloakAdminService(
     KeycloakAdminApiClient keycloakAdminApiClient,
     IConfiguration configuration,
     ILogger<KeycloakAdminService> logger
@@ -27,6 +33,14 @@ public class KeycloakAdminService(
         );
     }
 
+    /// <summary>
+    ///     Retrieves a list of users from the Keycloak Admin API.
+    /// </summary>
+    /// <param name="page"></param>
+    /// <param name="limit"></param>
+    /// <param name="search"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task<PaginatedResponse<UserRepresentation>> GetUsers(
         int? page,
         int? limit,
@@ -68,6 +82,14 @@ public class KeycloakAdminService(
         };
     }
 
+    /// <summary>
+    ///     Retrieves a list of roles from the Keycloak Admin API.
+    /// </summary>
+    /// <param name="page"></param>
+    /// <param name="limit"></param>
+    /// <param name="search"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task<PaginatedResponse<RoleRepresentation>> GetRoles(int? page,
         int? limit,
         string? search = null,
@@ -89,6 +111,13 @@ public class KeycloakAdminService(
         };
     }
     
+    /// <summary>
+    ///     Retrieves a list of clients from the Keycloak Admin API.
+    /// </summary>
+    /// <param name="page"></param>
+    /// <param name="limit"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task<PaginatedResponse<ClientRepresentation>> GetClients(int? page,
         int? limit,
         CancellationToken cancellationToken = default)

@@ -19,6 +19,9 @@ using RoleRepresentation = Keycloak.AuthServices.Sdk.Kiota.Admin.Models.RoleRepr
 
 namespace Craft.KeycloakModule;
 
+/// <summary>
+///     KeycloakModule is a CraftModule that provides Keycloak-based authentication and authorization services.
+/// </summary>
 public sealed class KeycloakModule : CraftModule.CraftModule
 {
     private readonly IConfiguration _configuration;
@@ -27,6 +30,11 @@ public sealed class KeycloakModule : CraftModule.CraftModule
     {
         _configuration = configuration;
     }
+    
+    /// <summary>
+    ///     Adds Keycloak-based authentication and authorization services to the application.
+    /// </summary>
+    /// <param name="services"></param>
     public override void PostInitialization(IServiceCollection services)
     {
         
@@ -66,6 +74,11 @@ public sealed class KeycloakModule : CraftModule.CraftModule
             .AddClientCredentialsTokenHandler("adminClient");
     }
 
+    /// <summary>
+    ///     Defines the routes for the KeycloakModule.
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <returns></returns>
     public override IEndpointRouteBuilder AddRoutes(
         IEndpointRouteBuilder builder
     )

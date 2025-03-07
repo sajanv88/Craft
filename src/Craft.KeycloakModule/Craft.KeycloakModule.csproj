@@ -12,8 +12,8 @@
         <Version>1.0.3</Version>
         <Authors>Sajankumar Vijayan</Authors>
         <Description>
-            Keycloak module for Craft. By default, Craft uses the Keycloak authentication and authorization services to secure your application.
-            This module provides the necessary configuration and services to integrate with Keycloak.
+            The Keycloak Module for Craft simplifies the integration of Keycloak-based authentication and authorization into your application. 
+            By default, Craft leverages Keycloak's robust identity and access management services to secure your application, ensuring a seamless and secure user experience.
         </Description>
         <Dependencies>Craft.CraftModule</Dependencies>
         <PackageProjectUrl>https://github.com/sajanv88/Craft</PackageProjectUrl>

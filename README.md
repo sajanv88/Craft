@@ -32,9 +32,13 @@ Choose whichever suits your style!
 
 Finally, add this line to automatically map all your module endpoints:
 ```csharp
+app.UseCraftGeneralException(); //  general exception handler (optional)
+
 app.MapCraftModulesEndpoint();
 ```
 And that’s it! Your endpoints are now ready to roll. 🚀
+
+
 
 ### Simple todo api example
 
@@ -92,6 +96,16 @@ public sealed class TodoModule : CraftModule
 ```
 
 ### Craft Available Modules
+
+- Craft.CraftModule
+- Craft.KeycloakModule
+  - [How to use Craft.KeycloakModule](docs/Keycloak.md)
+
+### Future Plans
+- Craft.LocalizationModule
+- Craft.AIAgentModule
+- Craft.BackgroundTaskModule
+
 ### Contributing
 
 Craft is an open-source project and welcomes contributions from the community.
@@ -106,11 +120,3 @@ Let’s make Craft the best framework for ASP.NET Core together!
 ### License
 Craft is licensed under the MIT license. See the [LICENSE](LICENSE) file for more information.
 
-- Craft.CraftModule
-- Craft.KeycloakModule
-    - [How to use Craft.KeycloakModule](docs/Keycloak.md)
-
-### Future Plans
-- Craft.LocalizationModule
-- Craft.AIAgentModule
-- Craft.BackgroundTaskModule

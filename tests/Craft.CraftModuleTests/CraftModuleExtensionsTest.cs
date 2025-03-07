@@ -1,4 +1,5 @@
-﻿using Craft.CraftModule.Extensions;
+﻿using Craft.CraftModule.Attributes;
+using Craft.CraftModule.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -47,6 +48,46 @@ public sealed class TestModule3
     public string GetModuleName() => nameof(TestModule3);
 }
 
+
+public sealed class TestModule4Service
+{
+    public string GetName() => nameof(TestModule4Service);
+}
+public sealed class TestModuleBase4 : CraftModule.CraftModule
+{
+    public override void PreInitialization(IServiceCollection services)
+    {
+        services.AddSingleton<TestModule4Service>();
+    }
+
+    public override IEndpointRouteBuilder AddRoutes(
+        IEndpointRouteBuilder builder
+    )
+    {
+        return builder;
+    }
+    
+    public string GetModuleName() => nameof(TestModuleBase4);
+}
+
+[DependsOn(typeof(TestModuleBase4))]
+public sealed class TestModule4 : CraftModule.CraftModule 
+{
+    private readonly TestModule4Service _service;
+    public TestModule4() {}
+    public TestModule4(TestModule4Service service)
+    {
+        this._service = service;
+    }
+    public override IEndpointRouteBuilder AddRoutes(IEndpointRouteBuilder builder)
+    {
+        return builder;
+    }
+    
+    public string GetModuleName() => $"{nameof(TestModule4)} {_service.GetName()}";
+}
+
+
 public class CraftModuleExtensionsTest
 {
     [Fact(
@@ -92,5 +133,26 @@ public class CraftModuleExtensionsTest
         Assert.Throws<InvalidOperationException>(
             () => serviceProvider.GetRequiredService<TestModule3>()
         );
+    }
+
+
+    [Fact(
+        DisplayName =
+            "AddCraftModules: Registers the specified module types which has a constructor, initializes them, and adds them to the dependency injection container."
+    )]
+    public void Test3()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton<TestModule4Service>(); // Register the service for testing
+
+        services.AddCraftModules([typeof(TestModule4)]);
+        
+        var serviceProvider = services.BuildServiceProvider();
+        var ex = Record.Exception(() => serviceProvider.GetRequiredService<TestModule4>());
+        Assert.Null(ex);
+        
+        var testModule4 = serviceProvider.GetRequiredService<TestModule4>();
+        var output = testModule4.GetModuleName();
+        Assert.Equal("TestModule4 TestModule4Service", output);
     }
 }

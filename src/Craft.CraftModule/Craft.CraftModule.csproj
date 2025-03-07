@@ -8,7 +8,7 @@
     </PropertyGroup>
     <PropertyGroup>
         <PackageId>Craft.CraftModule</PackageId>
-        <Version>1.0.2</Version>
+        <Version>1.0.3</Version>
         <Authors>Sajankumar Vijayan</Authors>
         <Description>
             Craft is the ultimate framework that supercharges ASP.NET Core! With its sleek layer of extension methods and powerful features, it transforms your code into a modular, clean, and effortlessly simple masterpiece. Build smarter, not harder!

@@ -68,6 +68,8 @@ public sealed class CraftKeycloakRoutesTest
         
         // Assert
         Assert.Contains("HTTP: GET /api/keycloak/admin/users", routes);
+        Assert.Contains("HTTP: GET /api/keycloak/admin/roles", routes);
+        Assert.Contains("HTTP: GET /api/keycloak/admin/clients", routes);
         Assert.Contains("HTTP: GET /api/keycloak/profile/me", routes);
 
         var keycloakModule = host.Services.GetRequiredService<KeycloakModule.KeycloakModule>();

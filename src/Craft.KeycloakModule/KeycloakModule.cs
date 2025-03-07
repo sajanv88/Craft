@@ -6,13 +6,16 @@ using Craft.KeycloakModule.Enums;
 using Craft.KeycloakModule.Options;
 using Craft.KeycloakModule.Services;
 using Keycloak.AuthServices.Common;
-using Keycloak.AuthServices.Sdk;
 using Keycloak.AuthServices.Sdk.Admin.Models;
+using Keycloak.AuthServices.Sdk.Kiota;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
+
 using Microsoft.Extensions.DependencyInjection;
+using ClientRepresentation = Keycloak.AuthServices.Sdk.Kiota.Admin.Models.ClientRepresentation;
+using RoleRepresentation = Keycloak.AuthServices.Sdk.Kiota.Admin.Models.RoleRepresentation;
 
 namespace Craft.KeycloakModule;
 
@@ -26,6 +29,7 @@ public sealed class KeycloakModule : CraftModule.CraftModule
     }
     public override void PostInitialization(IServiceCollection services)
     {
+        
         services.AddScoped<KeycloakAdminService>();
         
         
@@ -76,6 +80,19 @@ public sealed class KeycloakModule : CraftModule.CraftModule
         ).Produces<PaginatedResponse<UserRepresentation>>()
         .WithDescription("Get all users in the realm with pagination support.");
         
+        adminEndpoint.MapGet(
+                "/roles",
+                async (int? page, int? limit, [Description("Search for a string contained in role name")] string? search, KeycloakAdminService admin, CancellationToken token) =>
+                Results.Ok(await admin.GetRoles(page, limit, search, token))
+            ).Produces<PaginatedResponse<RoleRepresentation>>()
+            .WithDescription("Get all roles in the realm with pagination support.");
+        
+        adminEndpoint.MapGet(
+                "/clients",
+                async (int? page, int? limit, KeycloakAdminService admin, CancellationToken token) =>
+                Results.Ok(await admin.GetClients(page, limit, token))
+            ).Produces<PaginatedResponse<ClientRepresentation>>()
+            .WithDescription("Get all clients in the realm with pagination support.");
         
         var userEndpoint = builder
             .MapGroup("/api/keycloak/profile")

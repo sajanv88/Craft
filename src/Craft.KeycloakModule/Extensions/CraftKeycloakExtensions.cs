@@ -41,7 +41,8 @@ public static class CraftKeycloakExtensions
     /// </remarks>
     public static AuthorizationBuilder AddCraftKeycloakAuthorization(
         this IServiceCollection services,
-        Action<KeycloakAuthorizationOptions>? configureKeycloakAuthorizationOptions = null
+        Action<KeycloakAuthorizationOptions>? configureKeycloakAuthorizationOptions =
+            null
     )
     {
         var options = new KeycloakAuthorizationOptions();
@@ -58,7 +59,10 @@ public static class CraftKeycloakExtensions
                     policy.RequireAuthenticatedUser();
                     policy.RequireResourceRolesForClient(
                         options.Resource,
-                        [nameof(KeycloakRoles.User), nameof(KeycloakRoles.Admin)]
+                        [
+                            nameof(KeycloakRoles.User),
+                            nameof(KeycloakRoles.Admin),
+                        ]
                     );
                 }
             )

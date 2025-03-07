@@ -26,7 +26,8 @@ public sealed class KeycloakAdminService(
 
     private void ValidateKeycloakSettings()
     {
-        if (_keycloakSettings is not null) return;
+        if (_keycloakSettings is not null)
+            return;
         logger.LogError("No Keycloak Settings found");
         throw new InvalidOperationException(
             "Keycloak settings are not configured"
@@ -50,7 +51,10 @@ public sealed class KeycloakAdminService(
     {
         logger.LogInformation("Getting users via Keycloak Admin API");
         ValidateKeycloakSettings();
-        var users = keycloakAdminApiClient.Admin.Realms[_keycloakSettings.Realm].Users;
+        var users = keycloakAdminApiClient
+            .Admin
+            .Realms[_keycloakSettings.Realm]
+            .Users;
 
         var requestParameters = new GetUsersRequestParameters
         {
@@ -58,21 +62,31 @@ public sealed class KeycloakAdminService(
             Max = limit ?? 10,
             Search = search,
         };
-        var totalCount = await users.Count.GetAsync(p =>
-        {
-            p.QueryParameters.Email = requestParameters.Search;
-            p.QueryParameters.Search = requestParameters.Search;
-        }, cancellationToken);
-        logger.LogInformation($"Total users found: {totalCount} for search: {search}");
+        var totalCount = await users.Count.GetAsync(
+            p =>
+            {
+                p.QueryParameters.Email = requestParameters.Search;
+                p.QueryParameters.Search = requestParameters.Search;
+            },
+            cancellationToken
+        );
+        logger.LogInformation(
+            $"Total users found: {totalCount} for search: {search}"
+        );
 
-        var results = await users.GetAsync(p =>
-        {
-            p.QueryParameters.Email = requestParameters.Search;
-            p.QueryParameters.First = requestParameters.First;
-            p.QueryParameters.Max = requestParameters.Max;
-            p.QueryParameters.Search = requestParameters.Search;
-        }, cancellationToken);
-        logger.LogInformation($"Getting users via Keycloak Admin API completed.");
+        var results = await users.GetAsync(
+            p =>
+            {
+                p.QueryParameters.Email = requestParameters.Search;
+                p.QueryParameters.First = requestParameters.First;
+                p.QueryParameters.Max = requestParameters.Max;
+                p.QueryParameters.Search = requestParameters.Search;
+            },
+            cancellationToken
+        );
+        logger.LogInformation(
+            $"Getting users via Keycloak Admin API completed."
+        );
         return new PaginatedResponse<UserRepresentation>
         {
             TotalCount = totalCount ?? 0,
@@ -90,19 +104,27 @@ public sealed class KeycloakAdminService(
     /// <param name="search"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<PaginatedResponse<RoleRepresentation>> GetRoles(int? page,
+    public async Task<PaginatedResponse<RoleRepresentation>> GetRoles(
+        int? page,
         int? limit,
         string? search = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         ValidateKeycloakSettings();
-        var roles = keycloakAdminApiClient.Admin.Realms[_keycloakSettings.Realm].Roles;
-        var results = await roles.GetAsync(o =>
-        {
-            o.QueryParameters.First = page ?? 0;
-            o.QueryParameters.Max = limit ?? 10;
-            o.QueryParameters.Search = search;
-        }, cancellationToken);
+        var roles = keycloakAdminApiClient
+            .Admin
+            .Realms[_keycloakSettings.Realm]
+            .Roles;
+        var results = await roles.GetAsync(
+            o =>
+            {
+                o.QueryParameters.First = page ?? 0;
+                o.QueryParameters.Max = limit ?? 10;
+                o.QueryParameters.Search = search;
+            },
+            cancellationToken
+        );
         return new PaginatedResponse<RoleRepresentation>
         {
             Items = results.AsReadOnly(),
@@ -110,7 +132,7 @@ public sealed class KeycloakAdminService(
             PageSize = limit ?? 10,
         };
     }
-    
+
     /// <summary>
     ///     Retrieves a list of clients from the Keycloak Admin API.
     /// </summary>
@@ -118,19 +140,27 @@ public sealed class KeycloakAdminService(
     /// <param name="limit"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<PaginatedResponse<ClientRepresentation>> GetClients(int? page,
+    public async Task<PaginatedResponse<ClientRepresentation>> GetClients(
+        int? page,
         int? limit,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         ValidateKeycloakSettings();
-        var clients = keycloakAdminApiClient.Admin.Realms[_keycloakSettings.Realm].Clients;
-    
-        var results = await clients.GetAsync(o =>
-        {
-            o.QueryParameters.First = page ?? 0;
-            o.QueryParameters.Max = limit ?? 10;
-            o.QueryParameters.Search = true;
-        }, cancellationToken);
+        var clients = keycloakAdminApiClient
+            .Admin
+            .Realms[_keycloakSettings.Realm]
+            .Clients;
+
+        var results = await clients.GetAsync(
+            o =>
+            {
+                o.QueryParameters.First = page ?? 0;
+                o.QueryParameters.Max = limit ?? 10;
+                o.QueryParameters.Search = true;
+            },
+            cancellationToken
+        );
         return new PaginatedResponse<ClientRepresentation>
         {
             Items = results.AsReadOnly(),

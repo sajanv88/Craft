@@ -5,7 +5,7 @@ using Microsoft.Kiota.Abstractions;
 namespace Craft.CraftModule.Exceptions;
 
 /// <summary>
-/// 
+///
 /// </summary>
 public class CraftGeneralException
 {
@@ -13,20 +13,21 @@ public class CraftGeneralException
     private readonly ILogger<CraftGeneralException> _logger;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="next"></param>
     /// <param name="logger"></param>
     public CraftGeneralException(
         RequestDelegate next,
-        ILogger<CraftGeneralException> logger)
+        ILogger<CraftGeneralException> logger
+    )
     {
         _next = next;
         _logger = logger;
     }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="context"></param>
     public async Task InvokeAsync(HttpContext context)
@@ -42,7 +43,10 @@ public class CraftGeneralException
         }
     }
 
-    private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private static Task HandleExceptionAsync(
+        HttpContext context,
+        Exception exception
+    )
     {
         context.Response.ContentType = "application/json";
         var statusCode = exception switch
@@ -51,7 +55,7 @@ public class CraftGeneralException
             InvalidOperationException => StatusCodes.Status400BadRequest,
             UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
             ApiException => StatusCodes.Status401Unauthorized,
-            _ => StatusCodes.Status500InternalServerError
+            _ => StatusCodes.Status500InternalServerError,
         };
         context.Response.StatusCode = statusCode;
 
@@ -59,7 +63,7 @@ public class CraftGeneralException
         {
             error = "An error occurred while processing your request. See details for more information.",
             details = exception.Message,
-            statusCode = statusCode
+            statusCode = statusCode,
         };
 
         return context.Response.WriteAsJsonAsync(response);

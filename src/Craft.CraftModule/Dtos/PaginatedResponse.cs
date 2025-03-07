@@ -1,7 +1,7 @@
 namespace Craft.CraftModule.Dtos;
 
 /// <summary>
-/// 
+///
 /// </summary>
 public sealed class PaginatedResponse<I>
 {
@@ -12,5 +12,5 @@ public sealed class PaginatedResponse<I>
     public int TotalPages => (int)Math.Ceiling(TotalCount / (double)PageSize);
 
     public bool HasPrevious => CurrentPage > 1;
-    public bool HasNext =>  TotalPages != 1 && CurrentPage < TotalPages;
+    public bool HasNext => TotalPages != 1 && CurrentPage < TotalPages;
 }

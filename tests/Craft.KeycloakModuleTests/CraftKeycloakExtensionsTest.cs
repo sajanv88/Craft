@@ -10,8 +10,9 @@ namespace Craft.KeycloakModuleTests;
 
 public sealed class CraftKeycloakExtensionsTest
 {
-    
-    [Fact(DisplayName = "AddCraftKeycloakAuthorization: Should configure authorization.")]
+    [Fact(
+        DisplayName = "AddCraftKeycloakAuthorization: Should configure authorization."
+    )]
     public void Test1()
     {
         // Arrange
@@ -19,12 +20,15 @@ public sealed class CraftKeycloakExtensionsTest
         services.AddLogging();
 
         // Act
-        var authorizationBuilder = services.AddCraftKeycloakAuthorization(ConfigureOptions);
+        var authorizationBuilder = services.AddCraftKeycloakAuthorization(
+            ConfigureOptions
+        );
 
         // Assert
         Assert.NotNull(authorizationBuilder);
         var serviceProvider = services.BuildServiceProvider();
-        var authorizationService = serviceProvider.GetService<IAuthorizationService>();
+        var authorizationService =
+            serviceProvider.GetService<IAuthorizationService>();
         Assert.NotNull(authorizationService);
         return;
 
@@ -34,7 +38,9 @@ public sealed class CraftKeycloakExtensionsTest
         }
     }
 
-    [Fact (DisplayName = "AddCraftKeycloakAuthentication: Should configure authentication.")]
+    [Fact(
+        DisplayName = "AddCraftKeycloakAuthentication: Should configure authentication."
+    )]
     public void Test2()
     {
         // Arrange
@@ -42,11 +48,15 @@ public sealed class CraftKeycloakExtensionsTest
         services.AddLogging();
 
         // Act
-        services.AddCraftKeycloakAuthentication(ConfigureAuthOptions, ConfigureJwtOptions);
-    
+        services.AddCraftKeycloakAuthentication(
+            ConfigureAuthOptions,
+            ConfigureJwtOptions
+        );
+
         // Assert
         var serviceProvider = services.BuildServiceProvider();
-        var authenticationService = serviceProvider.GetService<IAuthenticationService>();
+        var authenticationService =
+            serviceProvider.GetService<IAuthenticationService>();
         Assert.NotNull(authenticationService);
         return;
 

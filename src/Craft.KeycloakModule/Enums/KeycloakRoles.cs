@@ -9,6 +9,7 @@ public enum KeycloakRoles
     ///  A user with the "Admin" role has full access to the specified resource Realm in the keycloak.
     /// </summary>
     Admin,
+
     /// <summary>
     ///    A user with the "User" role has limited access.
     /// </summary>

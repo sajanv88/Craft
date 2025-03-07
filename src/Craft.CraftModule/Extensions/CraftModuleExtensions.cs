@@ -79,7 +79,7 @@ public static class CraftModuleExtensions
     private static void RegisterModule(IServiceCollection services, Type module)
     {
         ModuleRegistry.Register(module);
-        
+
         var modules = ModuleRegistry
             .GetRegisteredModules()
             .Select(type => GetInstance(type, services))
@@ -91,20 +91,27 @@ public static class CraftModuleExtensions
         }
     }
 
-    private static CraftModule GetInstance(Type type, IServiceCollection services)
+    private static CraftModule GetInstance(
+        Type type,
+        IServiceCollection services
+    )
     {
-        var isConstructorInfo = type.GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 0);
-        if (isConstructorInfo is null) return (CraftModule)Activator.CreateInstance(type)!;
+        var isConstructorInfo = type.GetConstructors()
+            .FirstOrDefault(c => c.GetParameters().Length == 0);
+        if (isConstructorInfo is null)
+            return (CraftModule)Activator.CreateInstance(type)!;
         var sp = services.BuildServiceProvider();
         return (CraftModule)ActivatorUtilities.CreateInstance(sp, type);
     }
-    
+
     private static CraftModule GetInstance(Type type, IServiceProvider sp)
     {
-        var isConstructorInfo = type.GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 0);
-        if (isConstructorInfo is null) return (CraftModule)Activator.CreateInstance(type)!;
+        var isConstructorInfo = type.GetConstructors()
+            .FirstOrDefault(c => c.GetParameters().Length == 0);
+        if (isConstructorInfo is null)
+            return (CraftModule)Activator.CreateInstance(type)!;
         return (CraftModule)ActivatorUtilities.CreateInstance(sp, type);
-    } 
+    }
 
     /// <summary>
     /// Maps endpoints for all registered Craft modules.
@@ -124,7 +131,7 @@ public static class CraftModuleExtensions
             .ToList();
 
         foreach (var module in modules)
-        {   
+        {
             module.AddRoutes(app);
         }
 

@@ -6,6 +6,7 @@ public sealed class Admin
     ///    The client ID of the Keycloak client that has the realm-management role.
     /// </summary>
     public string ClientId { get; set; } = string.Empty;
+
     /// <summary>
     ///    The client secret of the Keycloak client that has the realm-management role.
     /// </summary>
@@ -21,19 +22,22 @@ public sealed class KeycloakSettings
     ///     A URL that points to the Keycloak server's realm example: https://keycloak.local/realms/dev
     /// </summary>
     public string Authority { get; set; } = string.Empty;
+
     /// <summary>
     ///     A URL that points to the Keycloak server's realm example: https://keycloak.local/realms/dev
     /// </summary>
     public string ClientId { get; set; } = string.Empty;
+
     /// <summary>
     ///     A URL that points to the Keycloak server for example: https://keycloak.local
     /// </summary>
     public string BaseUrl { get; set; } = string.Empty;
+
     /// <summary>
     ///    A Realm is a container for a set of users, credentials, roles, and groups. A user belongs to and logs into a realm.
     /// </summary>
     public string Realm { get; set; } = string.Empty;
-    
+
     /// <summary>
     ///     Audience is the intended recipient of the token.
     /// </summary>

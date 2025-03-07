@@ -49,15 +49,15 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   
-            -   name: Run Craft.KeycloakModuleTests
-                id: run_tests_1
-                run: |
-                    set +e
-                    OUTPUT=$(dotnet test tests/Craft.KeycloakModuleTests --no-build --configuration Release --logger "trx" | tee test-results-craft-keycloak.txt)
-                    echo "RESULT<<EOF" >> $GITHUB_ENV
-                    echo "$OUTPUT" >> $GITHUB_ENV
-                    echo "EOF" >> $GITHUB_ENV
-                    set -e
+            - name: Run Craft.KeycloakModuleTests
+              id: run_tests_2
+              run: |
+                 set +e
+                 OUTPUT=$(dotnet test tests/Craft.KeycloakModuleTests --no-build --configuration Release --logger "trx" | tee test-results-craft-keycloak.txt)
+                 echo "RESULT<<EOF" >> $GITHUB_ENV
+                 echo "$OUTPUT" >> $GITHUB_ENV
+                 echo "EOF" >> $GITHUB_ENV
+                 set -e
                     
             - name: Create/Update PR Comment for Craft.KeycloakModuleTests
               uses: thollander/actions-comment-pull-request@v2

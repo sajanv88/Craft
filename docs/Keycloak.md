@@ -114,7 +114,7 @@ public sealed class ApiModule : CraftModule
         IEndpointRouteBuilder builder
     )
     {
-        var app = builder.MapGroup("/api");
+        var app = builder.MapGroup("/api").RequireAuthorization(nameof(KeycloakPolicyName.AdminPolicy));
         app.MapGet("/", () => "Hello from ApiModule!");
         return builder;
     }

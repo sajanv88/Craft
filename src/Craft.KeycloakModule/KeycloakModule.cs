@@ -84,7 +84,7 @@ public sealed class KeycloakModule : CraftModule.CraftModule
     {
         var adminEndpoint = builder
             .MapGroup("/api/keycloak/admin")
-            .RequireAuthorization(nameof(KeycloakRoles.Admin));
+            .RequireAuthorization(nameof(KeycloakPolicyName.AdminPolicy));
         adminEndpoint
             .MapGet(
                 "/users",
@@ -140,7 +140,7 @@ public sealed class KeycloakModule : CraftModule.CraftModule
 
         var userEndpoint = builder
             .MapGroup("/api/keycloak/profile")
-            .RequireAuthorization(nameof(KeycloakRoles.User));
+            .RequireAuthorization(nameof(KeycloakPolicyName.UserPolicy));
 
         userEndpoint
             .MapGet(

@@ -53,7 +53,7 @@ public static class CraftKeycloakExtensions
             .AddAuthorization()
             .AddAuthorizationBuilder()
             .AddPolicy(
-                nameof(KeycloakPolicyName.User),
+                nameof(KeycloakPolicyName.UserPolicy),
                 policy =>
                 {
                     policy.RequireAuthenticatedUser();
@@ -67,7 +67,7 @@ public static class CraftKeycloakExtensions
                 }
             )
             .AddPolicy(
-                nameof(KeycloakPolicyName.Admin),
+                nameof(KeycloakPolicyName.AdminPolicy),
                 policy =>
                 {
                     policy.RequireAuthenticatedUser();

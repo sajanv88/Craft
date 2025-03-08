@@ -3,6 +3,9 @@ name: Testing
 on:
     pull_request:
         types: [opened, synchronize, reopened]
+        
+permissions:
+    pull-requests: write
 
 jobs:
     run-craft-module-tests:

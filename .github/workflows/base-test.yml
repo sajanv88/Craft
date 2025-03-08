@@ -15,6 +15,9 @@ on:
                 description: 'Name of the test project (for display purposes)'
                 required: true
                 type: string
+                
+permissions:
+    pull-requests: write
 
 jobs:
     test:

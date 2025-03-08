@@ -4,69 +4,17 @@ on:
     pull_request:
         types: [opened, synchronize, reopened]
 
-permissions:
-    pull-requests: write
-
 jobs:
-    test:
-        name: Run Craft.CraftModuleTests
-        runs-on: ubuntu-latest
-        
-        steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v4
-            
-            - name: Setup .NET
-              uses: actions/setup-dotnet@v4
-              with:
-                  dotnet-version: '9.0.x' # Adjust if needed
-            
-            - name: Restore Dependencies
-              run: dotnet restore
-            
-            - name: Build Solution
-              run: dotnet build --no-restore --configuration Release
-            
-            - name: Run Craft.CraftModuleTests
-              id: run_tests_1
-              run: |
-                  set +e
-                  OUTPUT=$(dotnet test tests/Craft.CraftModuleTests --no-build --configuration Release --logger "trx" | tee test-results-craft.txt)
-                  echo "RESULT<<EOF" >> $GITHUB_ENV
-                  echo "$OUTPUT" >> $GITHUB_ENV
-                  echo "EOF" >> $GITHUB_ENV
-                  set -e
-                  
-            - name: Create/Update PR Comment for Craft.CraftModuleTests
-              uses: thollander/actions-comment-pull-request@v2
-              with:
-                  message: |
-                      🚀 **Test Results for Craft.CraftModuleTests**
-                      ```
-                      ${{ env.RESULT }}
-                      ```
-                  comment_tag: test-results-craft
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  
-            - name: Run Craft.KeycloakModuleTests
-              id: run_tests_2
-              run: |
-                 set +e
-                 OUTPUT=$(dotnet test tests/Craft.KeycloakModuleTests --no-build --configuration Release --logger "trx" | tee test-results-craft-keycloak.txt)
-                 echo "RESULT<<EOF" >> $GITHUB_ENV
-                 echo "$OUTPUT" >> $GITHUB_ENV
-                 echo "EOF" >> $GITHUB_ENV
-                 set -e
-                    
-            - name: Create/Update PR Comment for Craft.KeycloakModuleTests
-              uses: thollander/actions-comment-pull-request@v2
-              with:
-                  message: |
-                      🚀 **Test Results for Craft.KeycloakModuleTests**
-                      ```
-                      ${{ env.RESULT }}
-                      ```
-                  comment_tag: test-results-craft-keycloak
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    run-craft-module-tests:
+        uses: ./.github/workflows/base-test.yml
+        with:
+            test_project_path: 'tests/Craft.CraftModuleTests'
+            comment_tag: 'test-results-craft'
+            test_project_name: 'Craft.CraftModuleTests'
+    
+    run-keycloak-module-tests:
+        uses: ./.github/workflows/run-dotnet-tests.yml
+        with:
+            test_project_path: 'tests/Craft.KeycloakModuleTests'
+            comment_tag: 'test-results-craft-keycloak'
+            test_project_name: 'Craft.KeycloakModuleTests'

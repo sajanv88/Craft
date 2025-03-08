@@ -48,13 +48,15 @@ public class CraftGeneralException
         Exception exception
     )
     {
+        
         context.Response.ContentType = "application/json";
         var statusCode = exception switch
         {
             ArgumentNullException => StatusCodes.Status400BadRequest,
             InvalidOperationException => StatusCodes.Status400BadRequest,
-            UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
+            UnauthorizedAccessException => StatusCodes.Status403Forbidden,
             ApiException => StatusCodes.Status401Unauthorized,
+            
             _ => StatusCodes.Status500InternalServerError,
         };
         context.Response.StatusCode = statusCode;

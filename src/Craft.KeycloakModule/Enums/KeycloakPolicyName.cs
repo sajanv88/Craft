@@ -6,12 +6,12 @@ namespace Craft.KeycloakModule.Enums;
 public enum KeycloakPolicyName
 {
     /// <summary>
-    ///    A user with the "User" policy can access the specified resource.
+    ///    A user with the "UserPolicy" this can access the specified resource.
     /// </summary>
-    User,
+    UserPolicy,
 
     /// <summary>
-    ///  A user with the "Admin" policy has full access to the specified resource of the Realm in Keycloak.
+    ///  A user with the "AdminPolicy" this has full access to the specified resource of the Realm in Keycloak.
     /// </summary>
-    Admin,
+    AdminPolicy,
 }

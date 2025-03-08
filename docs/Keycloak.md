@@ -96,6 +96,14 @@ builder.Services.AddCraftKeycloakAuthentication(
 
 ```
 
+
+`AddCraftKeycloakAuthorization ` is a wrapper of `AddKeycloakAuthorization` from `Keycloak.AuthServices.Authorization` library.
+all the options are the same. You can read more about it [here](https://nikiforovall.github.io/keycloak-authorization-services-dotnet/authorization/authorization-server.html)
+
+`AddCraftKeycloakAuthentication` is a wrapper of `AddKeycloakWebApiAuthentication` from `Keycloak.AuthServices.Authentication` library.
+all the options are the same. You can read more about it [here](https://nikiforovall.github.io/keycloak-authorization-services-dotnet/configuration/configuration-authentication.html)
+
+
 3. Mark any of your exising Craft modules with the `[DependsOn]` attribute to secure the module.
 
 ```csharp

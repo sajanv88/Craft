@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Craft.CraftModuleTests;
+
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -19,15 +20,20 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
         });
     }
 }
-public sealed class CraftModuleAddRoutesTest :  IClassFixture<CustomWebApplicationFactory>
+
+public sealed class CraftModuleAddRoutesTest
+    : IClassFixture<CustomWebApplicationFactory>
 {
     private readonly CustomWebApplicationFactory _factory;
+
     public CraftModuleAddRoutesTest(CustomWebApplicationFactory factory)
     {
         _factory = factory;
     }
-    
-    [Fact(DisplayName = "AddRoutes: Should add routes to the endpoint route builder.")]
+
+    [Fact(
+        DisplayName = "AddRoutes: Should add routes to the endpoint route builder."
+    )]
     public async Task Test1()
     {
         var client = _factory.CreateClient();
@@ -36,8 +42,10 @@ public sealed class CraftModuleAddRoutesTest :  IClassFixture<CustomWebApplicati
         var responseString = await response.Content.ReadAsStringAsync();
         Assert.Equal("Hello, World!", responseString);
     }
-    
-    [Fact(DisplayName = "AddRoutes: Should resolve dependencies from the service provider and returns TestModule name.")]
+
+    [Fact(
+        DisplayName = "AddRoutes: Should resolve dependencies from the service provider and returns TestModule name."
+    )]
     public async Task Test2()
     {
         var client = _factory.CreateClient();

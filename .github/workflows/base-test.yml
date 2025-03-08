@@ -1,0 +1,62 @@
+name: Base Test Workflow
+
+on:
+    workflow_call:
+        inputs:
+            test_project_path:
+                description: 'Path to the test project'
+                required: true
+                type: string
+            comment_tag:
+                description: 'Unique tag for the PR comment'
+                required: true
+                type: string
+            test_project_name:
+                description: 'Name of the test project (for display purposes)'
+                required: true
+                type: string
+                
+permissions:
+    pull-requests: write
+
+jobs:
+    test:
+        name: Run ${{ inputs.test_project_name }}
+        runs-on: ubuntu-latest
+        
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+            
+            - name: Setup .NET
+              uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: '9.0.x' # Adjust if needed
+            
+            - name: Restore Dependencies
+              run: dotnet restore
+            
+            - name: Build Solution
+              run: dotnet build --no-restore --configuration Release
+            
+            - name: Run Tests
+              id: run_tests
+              run: |
+                  set +e
+                  OUTPUT=$(dotnet test ${{ inputs.test_project_path }} --no-build --configuration Release --logger "trx" | tee test-results.txt)
+                  echo "RESULT<<EOF" >> $GITHUB_ENV
+                  echo "$OUTPUT" >> $GITHUB_ENV
+                  echo "EOF" >> $GITHUB_ENV
+                  set -e
+            
+            - name: Create/Update PR Comment
+              uses: thollander/actions-comment-pull-request@v2
+              with:
+                  message: |
+                      🚀 **Test Results for ${{ inputs.test_project_name }}**
+                      ```
+                      ${{ env.RESULT }}
+                      ```
+                  comment_tag: ${{ inputs.comment_tag }}
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

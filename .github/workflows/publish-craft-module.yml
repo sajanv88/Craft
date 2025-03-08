@@ -24,12 +24,14 @@ jobs:
                 run: |
                     mkdir -p ./artifacts
                     dotnet pack src/Craft.CraftModule/Craft.CraftModule.csproj --configuration Release --no-build --output ./artifacts
+                    dotnet pack src/Craft.CraftModule/Craft.KeycloakModule.csproj --configuration Release --no-build --output ./artifacts
+                
                 working-directory: ${{ github.workspace }}
             
             -   name: Push NuGet packages
                 run: |
                     for nupkg in ./artifacts/*.nupkg; do
-                      dotnet nuget push "$nupkg" -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
+                      dotnet nuget push "$nupkg" -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json || true
                     done
                 env:
                     NUGET_AUTH_TOKEN: ${{ secrets.NUGET_KEY }}

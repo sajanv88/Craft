@@ -13,6 +13,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{984E4DB6
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Craft.CraftModuleTests", "tests\Craft.CraftModuleTests\Craft.CraftModuleTests.csproj", "{E3A750AA-F59F-4040-8207-01D89BBE4E6A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Craft.KeycloakModule", "src\Craft.KeycloakModule\Craft.KeycloakModule.csproj", "{B9921A94-A55B-45B5-AA4B-615B5FDB78FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Craft.KeycloakModuleTests", "tests\Craft.KeycloakModuleTests\Craft.KeycloakModuleTests.csproj", "{A3FC3818-B0C8-4BDD-956F-2154B3CE3CED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +29,8 @@ Global
 		{5B1C6474-81D9-4020-A9CB-084BFCC26210} = {EBC0D65B-35BA-4815-938B-52B8C397703F}
 		{42217B9E-186E-44B9-953C-CD0ED15CE461} = {EBC0D65B-35BA-4815-938B-52B8C397703F}
 		{E3A750AA-F59F-4040-8207-01D89BBE4E6A} = {984E4DB6-281D-4D1D-BD5C-7B84967B40A4}
+		{B9921A94-A55B-45B5-AA4B-615B5FDB78FE} = {EBC0D65B-35BA-4815-938B-52B8C397703F}
+		{A3FC3818-B0C8-4BDD-956F-2154B3CE3CED} = {984E4DB6-281D-4D1D-BD5C-7B84967B40A4}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{5B1C6474-81D9-4020-A9CB-084BFCC26210}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -39,5 +45,13 @@ Global
 		{E3A750AA-F59F-4040-8207-01D89BBE4E6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3A750AA-F59F-4040-8207-01D89BBE4E6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3A750AA-F59F-4040-8207-01D89BBE4E6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9921A94-A55B-45B5-AA4B-615B5FDB78FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9921A94-A55B-45B5-AA4B-615B5FDB78FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9921A94-A55B-45B5-AA4B-615B5FDB78FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9921A94-A55B-45B5-AA4B-615B5FDB78FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3FC3818-B0C8-4BDD-956F-2154B3CE3CED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3FC3818-B0C8-4BDD-956F-2154B3CE3CED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3FC3818-B0C8-4BDD-956F-2154B3CE3CED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3FC3818-B0C8-4BDD-956F-2154B3CE3CED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

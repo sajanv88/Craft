@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <CSharpier_FrameworkVersion>net9.0</CSharpier_FrameworkVersion>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+    <PropertyGroup>
+        <PackageId>Craft.KeycloakModule</PackageId>
+        <Version>1.0.3</Version>
+        <Authors>Sajankumar Vijayan</Authors>
+        <Description>
+            The Keycloak Module for Craft simplifies the integration of Keycloak-based authentication and authorization into your application. 
+            By default, Craft leverages Keycloak's robust identity and access management services to secure your application, ensuring a seamless and secure user experience.
+        </Description>
+        <Dependencies>Craft.CraftModule</Dependencies>
+        <PackageProjectUrl>https://github.com/sajanv88/Craft</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/sajanv88/Craft.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Craft.CraftModule\Craft.CraftModule.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="Duende.AccessTokenManagement" Version="3.2.0" />
+      <PackageReference Include="Keycloak.AuthServices.Authentication" Version="2.6.0" />
+      <PackageReference Include="Keycloak.AuthServices.Authorization" Version="2.6.0" />
+      <PackageReference Include="Keycloak.AuthServices.Sdk" Version="2.6.0" />
+      <PackageReference Include="Keycloak.AuthServices.Sdk.Kiota" Version="26.0.5" />
+    </ItemGroup>
+
+</Project>

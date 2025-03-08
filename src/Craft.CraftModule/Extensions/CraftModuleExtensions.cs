@@ -34,7 +34,8 @@ public static class CraftModuleExtensions
         var moduleTypes = assembly
             .GetTypes()
             .Where(t =>
-                t is { IsClass: true, IsAbstract: false } && t.IsSubclassOf(typeof(CraftModule))
+                t is { IsClass: true, IsAbstract: false }
+                && t.IsSubclassOf(typeof(CraftModule))
             );
 
         foreach (var type in moduleTypes)
@@ -78,15 +79,38 @@ public static class CraftModuleExtensions
     private static void RegisterModule(IServiceCollection services, Type module)
     {
         ModuleRegistry.Register(module);
+
         var modules = ModuleRegistry
             .GetRegisteredModules()
-            .Select(type => (CraftModule)Activator.CreateInstance(type)!)
+            .Select(type => GetInstance(type, services))
             .ToList();
 
         foreach (var m in modules)
         {
             InitializeModule(m, services);
         }
+    }
+
+    private static CraftModule GetInstance(
+        Type type,
+        IServiceCollection services
+    )
+    {
+        var isConstructorInfo = type.GetConstructors()
+            .FirstOrDefault(c => c.GetParameters().Length == 0);
+        if (isConstructorInfo is null)
+            return (CraftModule)Activator.CreateInstance(type)!;
+        var sp = services.BuildServiceProvider();
+        return (CraftModule)ActivatorUtilities.CreateInstance(sp, type);
+    }
+
+    private static CraftModule GetInstance(Type type, IServiceProvider sp)
+    {
+        var isConstructorInfo = type.GetConstructors()
+            .FirstOrDefault(c => c.GetParameters().Length == 0);
+        if (isConstructorInfo is null)
+            return (CraftModule)Activator.CreateInstance(type)!;
+        return (CraftModule)ActivatorUtilities.CreateInstance(sp, type);
     }
 
     /// <summary>
@@ -102,9 +126,8 @@ public static class CraftModuleExtensions
         this WebApplication app
     )
     {
-        var modules = ModuleRegistry
-            .GetRegisteredModules()
-            .Select(type => (CraftModule)Activator.CreateInstance(type)!)
+        var modules = InitializedModules
+            .Select(type => GetInstance(type, app.Services))
             .ToList();
 
         foreach (var module in modules)
@@ -140,19 +163,40 @@ public static class CraftModuleExtensions
             return;
         }
 
+        Console.WriteLine(
+            $"🔍 Discovering dependencies for {moduleType.Name}..."
+        );
+
         var dependsOnAttributes = moduleType
             .GetCustomAttributes(typeof(DependsOnAttribute), true)
             .Cast<DependsOnAttribute>();
 
+        if (!dependsOnAttributes.Any())
+        {
+            Console.WriteLine(
+                $"📦 No dependencies found for {moduleType.Name}."
+            );
+        }
+
         foreach (var attribute in dependsOnAttributes)
         {
+            Console.WriteLine(
+                $"📦 Total {attribute.Dependencies.Length} dependencies found for {moduleType.Name}."
+            );
+
             foreach (var dependency in attribute.Dependencies)
             {
                 if (!InitializedModules.Contains(dependency))
                 {
-                    throw new InvalidOperationException(
-                        $"Module {dependency.Name} is required for {moduleType.Name}."
+                    Console.WriteLine(
+                        $"🔗 {moduleType.Name} depends on {dependency.Name}. Initializing dependency... ⚙️"
                     );
+                    // Create dependency instance
+                    var dependencyModule = GetInstance(dependency, services);
+                    // Add the dependency to the module registry
+                    ModuleRegistry.Register(dependency);
+                    // Initialize the dependency
+                    InitializeModule(dependencyModule, services);
                 }
             }
         }

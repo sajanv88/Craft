@@ -3,55 +3,21 @@ name: Testing
 on:
     pull_request:
         types: [opened, synchronize, reopened]
-
+        
 permissions:
     pull-requests: write
 
 jobs:
-    test:
-        name: Run Craft.CraftModuleTests
-        runs-on: ubuntu-latest
-        
-        steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v4
-            
-            - name: Setup .NET
-              uses: actions/setup-dotnet@v4
-              with:
-                  dotnet-version: '9.0.x' # Adjust if needed
-            
-            - name: Restore Dependencies
-              run: dotnet restore
-            
-            - name: Verify Test Project Exists
-              run: |
-                  if [ ! -f tests/Craft.CraftModuleTests/Craft.CraftModuleTests.csproj ]; then
-                    echo "❌ Test project not found at tests/Craft.CraftModuleTests! Check your path."
-                    exit 1
-                  fi
-            
-            - name: Build Solution
-              run: dotnet build --no-restore --configuration Release
-            
-            - name: Run Tests
-              id: run_tests
-              run: |
-                  set +e
-                  OUTPUT=$(dotnet test tests/Craft.CraftModuleTests --no-build --configuration Release --logger "trx" | tee test-results.txt)
-                  echo "RESULT<<EOF" >> $GITHUB_ENV
-                  echo "$OUTPUT" >> $GITHUB_ENV
-                  echo "EOF" >> $GITHUB_ENV
-                  set -e
-            
-            - name: Create/Update PR Comment
-              uses: thollander/actions-comment-pull-request@v2
-              with:
-                  message: |
-                      🚀 **Test Results for Craft.CraftModuleTests**
-                      ```
-                      ${{ env.RESULT }}
-                      ```
-                  comment_tag: test-results
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    run-craft-module-tests:
+        uses: ./.github/workflows/base-test.yml
+        with:
+            test_project_path: 'tests/Craft.CraftModuleTests'
+            comment_tag: 'test-results-craft'
+            test_project_name: 'Craft.CraftModuleTests'
+    
+    run-keycloak-module-tests:
+        uses: ./.github/workflows/base-test.yml
+        with:
+            test_project_path: 'tests/Craft.KeycloakModuleTests'
+            comment_tag: 'test-results-craft-keycloak'
+            test_project_name: 'Craft.KeycloakModuleTests'

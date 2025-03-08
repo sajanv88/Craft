@@ -14,7 +14,7 @@ public sealed class TodoModule : CraftModule.CraftModule
         IEndpointRouteBuilder builder
     )
     {
-        var app = builder.MapGroup("/todos");
+        var app = builder.MapGroup("/api/todos");
         var scope = builder.ServiceProvider.CreateScope();
         var todoService =
             scope.ServiceProvider.GetRequiredService<TodoService>();

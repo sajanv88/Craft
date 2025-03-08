@@ -13,7 +13,7 @@ jobs:
             test_project_name: 'Craft.CraftModuleTests'
     
     run-keycloak-module-tests:
-        uses: ./.github/workflows/run-dotnet-tests.yml
+        uses: ./.github/workflows/base-test.yml
         with:
             test_project_path: 'tests/Craft.KeycloakModuleTests'
             comment_tag: 'test-results-craft-keycloak'

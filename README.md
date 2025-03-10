@@ -94,6 +94,97 @@ public sealed class TodoModule : CraftModule
     }
 }
 ```
+### Want to Use a Database in Your Module?
+Craft has you covered! You can seamlessly integrate Entity Framework Core into your module.
+
+#### Install the PostgreSQL Provider
+To get started, install the Npgsql.EntityFrameworkCore.PostgreSQL package:
+
+```bash
+dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL
+```
+#### Create a Database Context
+Next, create an ApiDbContext class that inherits from CraftDbContext and define a DbSet for your entity.
+
+`ApiDbContext.cs`
+
+```csharp
+
+using Craft.Api.Domain;
+using Craft.CraftModule.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+
+namespace Craft.Api.Infrastructure;
+
+public class ApiDbContext(DbContextOptions<ApiDbContext> options)
+    : CraftDbContext<ApiDbContext>(options)
+{
+    public DbSet<TodoEntity> Todos { get; set; }
+}
+
+```
+#### Configure Your Entity in the Module
+In your `TodoModule.cs` file, override the ConfigureModelBuilder method to define your entity schema.
+
+```csharp
+public sealed class TodoModule : CraftModule
+{
+    public override void ConfigureModelBuilder(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<TodoEntity>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Content).IsRequired();
+            entity.Property(e => e.IsCompleted).HasDefaultValue(false);
+        });
+    }
+}
+```
+#### Define Your Connection String
+Add your database connection string to `appsettings.json`:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=craft;Username=postgres;Password=postgres"
+  }
+}
+```
+#### Configure the Database Context in `Program.cs`
+Modify your `Program.cs` file to register the database context:
+
+```csharp
+builder.Services.AddDbContext<ApiDbContext>(options =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    options.UseNpgsql(connectionString);
+});
+
+
+```
+#### Run Migrations and Update the Database
+```bash
+
+dotnet ef migrations add InitialCreate
+dotnet ef database update
+
+```
+
+🎉 That's It!
+Your module is now fully integrated with Entity Framework Core.
+
+For a complete working example, check out the example `Craft.Api` project in this repository under the Modules folder. 🚀
+
+Additionally, you can use a separate **DbContext** for each module.
+
+For example, simply create a `TodoDbContext` and register it in the `PreInitialization` method:
+
+```csharp
+services.AddDbContext<TodoDbContext>();
+```  
+
+This allows each module to have its own isolated database context, improving modularity and maintainability. 🚀
+
 
 ### Craft Available Modules
 

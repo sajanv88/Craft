@@ -27,6 +27,12 @@
     <ItemGroup>
       
       <ProjectReference Include="..\Craft.KeycloakModule\Craft.KeycloakModule.csproj" />
+      
+      <ProjectReference Include="..\Craft.LocalizationModule\Craft.LocalizationModule.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Infrastructure\Migrations\" />
     </ItemGroup>
 
 </Project>

@@ -7,6 +7,9 @@ using Craft.KeycloakModule;
 using Craft.KeycloakModule.Enums;
 using Craft.KeycloakModule.Extensions;
 using Craft.KeycloakModule.Options;
+using Craft.LocalizationModule;
+using Craft.LocalizationModule.Extensions;
+using Craft.LocalizationModule.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -72,6 +75,11 @@ builder.Services.AddDbContext<ApiDbContext>(o =>
     o.UseNpgsql(connectionString);
 });
 
+builder.Services.AddLocalization(options =>
+{
+    options.Cultures = ["en-US", "nl-NL", "ta-IN"];
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -112,6 +120,8 @@ public sealed class ApiModule : CraftModule
     {
         var app = builder.MapGroup("/api");
         app.MapGet("/", () => "Hello from ApiModule!");
+        
+
         return builder;
     }
 }

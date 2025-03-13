@@ -3,14 +3,17 @@ using Craft.LocalizationModule.Domain.Entities;
 using Craft.LocalizationModule.Domain.Interfaces;
 using Craft.LocalizationModule.Dtos;
 using Craft.LocalizationModule.Infrastructure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Craft.LocalizationModule.Services;
 
+
 public sealed class LocalizationService(LocalizationDbContext dbContext, ILogger<LocalizationService> logger)
     : ILocalizationService
 {
+    
     public async Task<PaginatedResponse<LocalizationEntity>> GetLocalizationsAsync(int? page, int? pageSize,
         string? cultureCode = null, string? key = null, string? value = null,
         CancellationToken cancellationToken = default)
@@ -112,5 +115,17 @@ public sealed class LocalizationService(LocalizationDbContext dbContext, ILogger
         
         dbContext.Localizations.RemoveRange(locale);
         await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public IReadOnlyList<CultureCodeAndDetailDto> ListAllCultures()
+    {
+        var dic = CultureInfo.AllCultures;
+        return dic.Select(x => new CultureCodeAndDetailDto(x.Key, x.Value)).ToList().AsReadOnly();
+    }
+
+    public CultureCodeAndDetailDto? GetCultureDetail(string code)
+    {
+        var culture = CultureInfo.AllCultures.FirstOrDefault(x => x.Key == code);
+        return culture.Key is null ? null : new CultureCodeAndDetailDto(culture.Key, culture.Value);
     }
 }

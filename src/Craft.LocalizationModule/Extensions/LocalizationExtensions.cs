@@ -1,6 +1,4 @@
-using Craft.CraftModule.Extensions;
-using Craft.LocalizationModule.Domain.Interfaces;
-using Craft.LocalizationModule.Infrastructure;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Craft.LocalizationModule.Extensions;
@@ -8,7 +6,10 @@ namespace Craft.LocalizationModule.Extensions;
 public sealed class LocalizationConfiguration
 {
     public List<string> Cultures { get; set; } = [];
-    
+    public string PolicyName { get; set; } = string.Empty;
+
+    public string EndpointContextPath { get; set; } = "/api/locales";
+
 }
 public static class LocalizationExtensions
 {
@@ -19,7 +20,6 @@ public static class LocalizationExtensions
         var configuration = new LocalizationConfiguration();
         configure(configuration);
         services.AddSingleton(configuration);
-        services.AddCraftModules([typeof(LocalizationModule)]);
         return services;
     }
 }

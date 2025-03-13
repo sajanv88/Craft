@@ -11,5 +11,9 @@ public interface ILocalizationService
     public Task<Guid> CreateLocalesAsync(CreateLocaleDto createLocaleDto, CancellationToken cancellationToken = default);
     public Task<LocalizationEntity> UpdateLocalesAsync(UpdateLocaleDto updateLocaleDto, CancellationToken cancellationToken = default);
     public Task DeleteLocalesAsync(Guid id, CancellationToken cancellationToken = default);
+
+    public IReadOnlyList<CultureCodeAndDetailDto> ListAllCultures();
     
+    public CultureCodeAndDetailDto? GetCultureDetail(string code);
+
 }

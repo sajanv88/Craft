@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Craft.Api.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class LocalizationMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -24,19 +24,6 @@ namespace Craft.Api.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_locales", x => x.Id);
                 });
-
-            migrationBuilder.CreateTable(
-                name: "Todos",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Content = table.Column<string>(type: "text", nullable: false),
-                    IsCompleted = table.Column<bool>(type: "boolean", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Todos", x => x.Id);
-                });
         }
 
         /// <inheritdoc />
@@ -44,9 +31,6 @@ namespace Craft.Api.Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "locales");
-
-            migrationBuilder.DropTable(
-                name: "Todos");
         }
     }
 }

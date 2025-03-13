@@ -4,12 +4,10 @@ using Craft.CraftModule;
 using Craft.CraftModule.Attributes;
 using Craft.CraftModule.Extensions;
 using Craft.KeycloakModule;
-using Craft.KeycloakModule.Enums;
 using Craft.KeycloakModule.Extensions;
 using Craft.KeycloakModule.Options;
 using Craft.LocalizationModule;
 using Craft.LocalizationModule.Extensions;
-using Craft.LocalizationModule.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -20,6 +18,8 @@ var builder = WebApplication.CreateBuilder(args);
 var keycloakSettings = builder
     .Configuration.GetSection("KeycloakSettings")
     .Get<KeycloakSettings>();
+
+builder.Services.AddOpenApiOauth(builder.Configuration);
 
 builder.Services.AddCraftKeycloakAuthorization(options =>
 {
@@ -63,7 +63,12 @@ builder.Services.AddCraftKeycloakAuthentication(
     }
 );
 
-builder.Services.AddOpenApiOauth(builder.Configuration);
+
+builder.Services.AddLocalization(options =>
+{
+    options.Cultures = ["en-US", "nl-NL", "ta-IN"];
+
+});
 
 builder.Services.AddCraftModulesFromAssembly(typeof(Program).Assembly);
 
@@ -75,10 +80,7 @@ builder.Services.AddDbContext<ApiDbContext>(o =>
     o.UseNpgsql(connectionString);
 });
 
-builder.Services.AddLocalization(options =>
-{
-    options.Cultures = ["en-US", "nl-NL", "ta-IN"];
-});
+
 
 var app = builder.Build();
 
@@ -112,6 +114,7 @@ app.MapCraftModulesEndpoint();
 app.Run();
 
 [DependsOn(typeof(KeycloakModule))]
+[DependsOn(typeof(LocalizationModule))]
 public sealed class ApiModule : CraftModule
 {
     public override IEndpointRouteBuilder AddRoutes(
@@ -120,7 +123,6 @@ public sealed class ApiModule : CraftModule
     {
         var app = builder.MapGroup("/api");
         app.MapGet("/", () => "Hello from ApiModule!");
-        
 
         return builder;
     }

@@ -5,7 +5,7 @@ namespace Craft.LocalizationModule.Extensions;
 
 public sealed class LocalizationConfiguration
 {
-    public List<string> Cultures { get; set; } = [];
+    public List<string> SupportedCultureCodes { get; set; } = [];
     public string PolicyName { get; set; } = string.Empty;
 
     public string EndpointContextPath { get; set; } = "/api/locales";
@@ -13,7 +13,7 @@ public sealed class LocalizationConfiguration
 }
 public static class LocalizationExtensions
 {
-    public static IServiceCollection AddLocalization(this IServiceCollection services,
+    public static IServiceCollection AddCraftLocalization(this IServiceCollection services,
         Action<LocalizationConfiguration> configure)
     {
         

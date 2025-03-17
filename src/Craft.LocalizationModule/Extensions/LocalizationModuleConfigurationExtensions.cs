@@ -1,3 +1,4 @@
+using Craft.CraftModule.Constants;
 using Craft.LocalizationModule.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +9,9 @@ public static class LocalizationModuleConfigurationExtensions
     
     public static void ConfigureLocalization(this ModelBuilder builder)
     {
-        builder.Entity<LocalizationEntity>().ToTable("locales");
+        const string prefix = CraftModuleConstants.PrefixAsCraft + "_Locales";
+        
+        builder.Entity<LocalizationEntity>().ToTable(prefix);
         
         builder.Entity<LocalizationEntity>(entity =>
         {

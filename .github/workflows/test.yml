@@ -21,3 +21,10 @@ jobs:
             test_project_path: 'tests/Craft.KeycloakModuleTests'
             comment_tag: 'test-results-craft-keycloak'
             test_project_name: 'Craft.KeycloakModuleTests'
+            
+    run-localization-module-tests:
+        uses: ./.github/workflows/base-test.yml
+        with:
+            test_project_path: 'tests/Craft.LocalizationModuleTests'
+            comment_tag: 'test-results-craft-localization'
+            test_project_name: 'Craft.LocalizationModuleTests'

@@ -2,7 +2,7 @@ using Craft.CraftModule.Dtos;
 using Craft.LocalizationModule.Domain.Entities;
 using Craft.LocalizationModule.Dtos;
 
-namespace Craft.LocalizationModule.Domain.Interfaces;
+namespace Craft.LocalizationModule.Interfaces;
 
 public interface ILocalizationService
 {

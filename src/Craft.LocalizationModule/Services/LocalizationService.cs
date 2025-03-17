@@ -1,16 +1,18 @@
 using Craft.CraftModule.Dtos;
 using Craft.LocalizationModule.Domain.Entities;
-using Craft.LocalizationModule.Domain.Interfaces;
+using Craft.LocalizationModule.Interfaces;
 using Craft.LocalizationModule.Dtos;
+using Craft.LocalizationModule.Extensions;
 using Craft.LocalizationModule.Infrastructure;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Craft.LocalizationModule.Services;
 
 
-public sealed class LocalizationService(LocalizationDbContext dbContext, ILogger<LocalizationService> logger)
+public sealed class LocalizationService(LocalizationDbContext dbContext,
+    LocalizationConfiguration localizationConfiguration,
+    ILogger<LocalizationService> logger)
     : ILocalizationService
 {
     
@@ -21,25 +23,48 @@ public sealed class LocalizationService(LocalizationDbContext dbContext, ILogger
 
         var cp = page ?? 0;
         var limit = pageSize ?? 10;
-        logger.LogInformation($"Getting localizations... Page: {cp}, PageSize: {limit}, CultureCode: {cultureCode}, Key: {key}, Value: {value}");
+        logger.LogInformation($"Getting localizations... Page: {cp}, PageSize: {limit}, CultureCode: {cultureCode ?? null}, Key: {key ?? null}, Value: {value ?? null}");
+        
+
         var queryable = dbContext.Localizations
-            .AsNoTracking()
-            .Skip(cp * limit)
-            .Take(limit);
+            .AsNoTracking();
+        
+        
+        if (localizationConfiguration.SupportedCultureCodes.Count > 0)
+        {
+            logger.LogInformation($"Filtering by supported culture codes {string.Join(",", localizationConfiguration.SupportedCultureCodes)}");
+            queryable = queryable.
+                Where(l 
+                    => localizationConfiguration.SupportedCultureCodes.Contains(l.CultureCode))
+                .Skip(cp * limit)
+                .Take(limit);
+        }
+        else
+        {
+            queryable = queryable
+                .Skip(cp * limit)
+                .Take(limit);
+        }
         
         if (!string.IsNullOrWhiteSpace(cultureCode))
         {
-            queryable = queryable.Where(x => x.CultureCode == cultureCode);
+            queryable = queryable.Where(x => x.CultureCode == cultureCode)
+                .Skip(cp * limit)
+                .Take(limit);
         }
 
         if (!string.IsNullOrWhiteSpace(key))
         {
-            queryable = queryable.Where(x => x.Key == key);
+            queryable = queryable.Where(x => x.Key == key)
+                .Skip(cp * limit)
+                .Take(limit);
         }
 
         if (!string.IsNullOrWhiteSpace(value))
         {
-            queryable = queryable.Where(x => x.Value == value);
+            queryable = queryable.Where(x => x.Value == value)
+                .Skip(cp * limit)
+                .Take(limit);
         }
 
         var total = await queryable.CountAsync(cancellationToken);

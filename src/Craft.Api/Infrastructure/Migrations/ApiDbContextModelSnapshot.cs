@@ -60,7 +60,7 @@ namespace Craft.Api.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("locales", (string)null);
+                    b.ToTable("Craft_Locales", (string)null);
                 });
 #pragma warning restore 612, 618
         }

@@ -1,6 +1,6 @@
 using Craft.CraftModule.Dtos;
 using Craft.LocalizationModule.Domain.Entities;
-using Craft.LocalizationModule.Domain.Interfaces;
+using Craft.LocalizationModule.Interfaces;
 using Craft.LocalizationModule.Dtos;
 using Craft.LocalizationModule.Extensions;
 using Craft.LocalizationModule.Infrastructure;

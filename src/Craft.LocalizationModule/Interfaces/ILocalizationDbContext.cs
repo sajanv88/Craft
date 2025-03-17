@@ -1,7 +1,7 @@
 using Craft.LocalizationModule.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Craft.LocalizationModule.Domain.Interfaces;
+namespace Craft.LocalizationModule.Interfaces;
 
 public interface ILocalizationDbContext
 {

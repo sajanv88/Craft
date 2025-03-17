@@ -64,10 +64,9 @@ builder.Services.AddCraftKeycloakAuthentication(
 );
 
 
-builder.Services.AddLocalization(options =>
-{
-    options.Cultures = ["en-US", "nl-NL", "ta-IN"];
-
+builder.Services.AddCraftLocalization(options =>
+{ 
+    options.SupportedCultureCodes = ["en-US", "nl-NL", "ta-IN"];
 });
 
 builder.Services.AddCraftModulesFromAssembly(typeof(Program).Assembly);
@@ -79,7 +78,6 @@ builder.Services.AddDbContext<ApiDbContext>(o =>
     );
     o.UseNpgsql(connectionString);
 });
-
 
 
 var app = builder.Build();

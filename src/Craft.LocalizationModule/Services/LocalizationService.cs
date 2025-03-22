@@ -4,37 +4,38 @@ using Craft.LocalizationModule.Interfaces;
 using Craft.LocalizationModule.Dtos;
 using Craft.LocalizationModule.Extensions;
 using Craft.LocalizationModule.Infrastructure;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Craft.LocalizationModule.Services;
 
-
-public sealed class LocalizationService(LocalizationDbContext dbContext,
+public sealed class LocalizationService(
+    LocalizationDbContext dbContext,
     LocalizationConfiguration localizationConfiguration,
-    ILogger<LocalizationService> logger)
+    ILogger<LocalizationService> logger,
+    IValidator<CreateLocaleDto> validator)
     : ILocalizationService
 {
-    
-    public async Task<PaginatedResponse<LocalizationEntity>> GetLocalizationsAsync(int? page, int? pageSize,
+    public async Task<PaginatedResponse<LocaleDto>> GetLocalizationsAsync(int? page, int? pageSize,
         string? cultureCode = null, string? key = null, string? value = null,
         CancellationToken cancellationToken = default)
     {
-
         var cp = page ?? 0;
         var limit = pageSize ?? 10;
-        logger.LogInformation($"Getting localizations... Page: {cp}, PageSize: {limit}, CultureCode: {cultureCode ?? null}, Key: {key ?? null}, Value: {value ?? null}");
-        
+        logger.LogInformation(
+            $"Getting localizations... Page: {cp}, PageSize: {limit}, CultureCode: {cultureCode ?? null}, Key: {key ?? null}, Value: {value ?? null}");
+
 
         var queryable = dbContext.Localizations
             .AsNoTracking();
-        
-        
+
+
         if (localizationConfiguration.SupportedCultureCodes.Count > 0)
         {
-            logger.LogInformation($"Filtering by supported culture codes {string.Join(",", localizationConfiguration.SupportedCultureCodes)}");
-            queryable = queryable.
-                Where(l 
+            logger.LogInformation(
+                $"Filtering by supported culture codes {string.Join(",", localizationConfiguration.SupportedCultureCodes)}");
+            queryable = queryable.Where(l
                     => localizationConfiguration.SupportedCultureCodes.Contains(l.CultureCode))
                 .Skip(cp * limit)
                 .Take(limit);
@@ -45,7 +46,7 @@ public sealed class LocalizationService(LocalizationDbContext dbContext,
                 .Skip(cp * limit)
                 .Take(limit);
         }
-        
+
         if (!string.IsNullOrWhiteSpace(cultureCode))
         {
             queryable = queryable.Where(x => x.CultureCode == cultureCode)
@@ -72,24 +73,33 @@ public sealed class LocalizationService(LocalizationDbContext dbContext,
         var results = data.ToList().AsReadOnly();
         logger.LogInformation($"Found {results.Count} localizations");
 
-        return new PaginatedResponse<LocalizationEntity>
+        return new PaginatedResponse<LocaleDto>
         {
-            Items = results,
+            Items = results.Select(x => new LocaleDto(x.Id, x.CultureCode, x.Key, x.Value)).ToList().AsReadOnly(),
             TotalCount = total,
             CurrentPage = cp,
             PageSize = limit
         };
     }
 
-    public Task<LocalizationEntity?> GetLocalizationAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<LocaleDto?> GetLocalizationAsync(Guid id, CancellationToken cancellationToken = default)
     {
         logger.LogInformation($"Getting localization.. Id: {id}");
-        return dbContext.Localizations.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        var locale = await dbContext.Localizations.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        return locale is null ? null : new LocaleDto(locale.Id, locale.CultureCode, locale.Key, locale.Value);
     }
 
     public async Task<Guid> CreateLocalesAsync(CreateLocaleDto createLocaleDto,
         CancellationToken cancellationToken = default)
     {
+        var validationResult = await validator.ValidateAsync(createLocaleDto, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            logger.LogWarning("Validation failed for CreateLocaleDto");
+            throw new ValidationException(validationResult.Errors);
+        }
+
         var entity = new LocalizationEntity
         {
             CultureCode = createLocaleDto.CultureCode,
@@ -97,11 +107,13 @@ public sealed class LocalizationService(LocalizationDbContext dbContext,
             Value = createLocaleDto.Value
         };
         // Check if the key already exists
-        var existing = dbContext.Localizations.FirstOrDefault(x => x.Key == entity.Key && x.CultureCode == entity.CultureCode);
+        var existing =
+            dbContext.Localizations.FirstOrDefault(x => x.Key == entity.Key && x.CultureCode == entity.CultureCode);
         if (existing != null)
         {
             logger.LogWarning($"Duplicate localization key: {entity.Key} for culture code: {entity.CultureCode}");
-            throw new InvalidOperationException($"The key '{entity.Key}' already exists for culture code '{entity.CultureCode}'");
+            throw new InvalidOperationException(
+                $"The key '{entity.Key}' already exists for culture code '{entity.CultureCode}'");
         }
 
         await dbContext.Localizations.AddAsync(entity, cancellationToken);
@@ -109,35 +121,48 @@ public sealed class LocalizationService(LocalizationDbContext dbContext,
         return entity.Id;
     }
 
-    public async Task<LocalizationEntity> UpdateLocalesAsync(UpdateLocaleDto updateLocaleDto,
+    public async Task<LocaleDto> UpdateLocalesAsync(UpdateLocaleDto updateLocaleDto,
         CancellationToken cancellationToken = default)
     {
-        var locale = await GetLocalizationAsync(updateLocaleDto.Id, cancellationToken);
+        var validationResult = await validator.ValidateAsync(
+            new CreateLocaleDto(updateLocaleDto.CultureCode, updateLocaleDto.Key, updateLocaleDto.Value),
+            cancellationToken);
+        
+        if (!validationResult.IsValid)
+        {
+            logger.LogWarning("Validation failed for UpdateLocaleDto");
+            throw new ValidationException(validationResult.Errors);
+        }
+
+        
+        var locale = await dbContext.Localizations.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == updateLocaleDto.Id, cancellationToken);
 
         if (locale is null)
         {
             logger.LogWarning($"No localization found for id: {updateLocaleDto.Id}");
             throw new InvalidOperationException($"The locale with id '{updateLocaleDto.Id}' was not found");
         }
-        
+
         locale.CultureCode = updateLocaleDto.CultureCode;
         locale.Key = updateLocaleDto.Key;
         locale.Value = updateLocaleDto.Value;
         dbContext.Localizations.Update(locale);
         await dbContext.SaveChangesAsync(cancellationToken);
-        return locale;
+        return new LocaleDto(locale.Id, locale.CultureCode, locale.Key, locale.Value);
     }
 
     public async Task DeleteLocalesAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var locale = await GetLocalizationAsync(id, cancellationToken);
+        var locale = await dbContext.Localizations.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
         if (locale is null)
         {
             logger.LogWarning($"No localization found for id: {id}");
             throw new InvalidOperationException($"The locale with id '{id}' was not found");
         }
-        
+
         dbContext.Localizations.RemoveRange(locale);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
@@ -148,9 +173,14 @@ public sealed class LocalizationService(LocalizationDbContext dbContext,
         return dic.Select(x => new CultureCodeAndDetailDto(x.Key, x.Value)).ToList().AsReadOnly();
     }
 
-    public CultureCodeAndDetailDto? GetCultureDetail(string code)
+    public async Task<LocaleWithCultureDetailDto>? GetCultureDetailAsync(string code)
     {
         var culture = CultureInfo.AllCultures.FirstOrDefault(x => x.Key == code);
-        return culture.Key is null ? null : new CultureCodeAndDetailDto(culture.Key, culture.Value);
+        if (culture.Key is null) return null;
+
+        var locales = await dbContext.Localizations.AsNoTracking().Where(l => l.CultureCode == code).ToListAsync();
+        var dic = locales.ToDictionary(x => x.Key, x => x.Value);
+        return new LocaleWithCultureDetailDto(new CultureCodeAndDetailDto(culture.Key, culture.Value),
+            dic);
     }
 }

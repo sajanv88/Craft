@@ -13,6 +13,9 @@ public class TestDatabaseFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
+        Console.WriteLine("Starting PostgreSQL Testcontainer...");
+
+        
         PostgreSqlContainer = new PostgreSqlBuilder()
             .WithImage("postgres:latest")
             .WithDatabase("testdb")
@@ -23,12 +26,17 @@ public class TestDatabaseFixture : IAsyncLifetime
 
         await PostgreSqlContainer.StartAsync();
         
+        Console.WriteLine("PostgreSQL Testcontainer started at: " + PostgreSqlContainer.GetConnectionString());
+
         var options = new DbContextOptionsBuilder<LocalizationDbContext>()
             .UseNpgsql(PostgreSqlContainer.GetConnectionString())
             .Options;
 
         DbContext = new LocalizationDbContext(options);
         await DbContext.Database.EnsureCreatedAsync();
+        
+        Console.WriteLine("Database schema initialized.");
+
     }
 
     public async Task DisposeAsync()

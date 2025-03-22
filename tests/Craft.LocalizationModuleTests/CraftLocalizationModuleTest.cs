@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using Craft.CraftModule.Attributes;
 using Craft.CraftModule.Extensions;
@@ -9,6 +10,7 @@ using Craft.LocalizationModule.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -32,16 +34,20 @@ public class CraftLocalizationModuleTest : IClassFixture<TestDatabaseFixture>, I
     public CraftLocalizationModuleTest(TestDatabaseFixture fixture)
     {
         _fixture = fixture;
-        _dbContext = fixture.DbContext;
-        _webApplicationBuilder = WebApplication.CreateBuilder();
-     
         var inMemorySettings = new Dictionary<string, string>
         {
-            { "DefaultConnection", fixture.ConnectionString }
+            { "ConnectionStrings:DefaultConnection", _fixture.ConnectionString }
         };
+        Console.WriteLine($"Using database connection string: {_fixture.ConnectionString}");
+
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(inMemorySettings)
             .Build();
+        
+        _dbContext = fixture.DbContext;
+        _webApplicationBuilder = WebApplication.CreateBuilder();
+        
+  
         var services = _webApplicationBuilder.Services;
         services.AddHttpClient("client", client =>
         {
@@ -53,6 +59,7 @@ public class CraftLocalizationModuleTest : IClassFixture<TestDatabaseFixture>, I
         {
             option.SupportedCultureCodes = [];
         });
+      
         CraftModuleExtensions.InitializedModules.Clear();
         services.AddCraftModules([typeof(LocalizationModuleTest)]);
 
@@ -79,7 +86,7 @@ public class CraftLocalizationModuleTest : IClassFixture<TestDatabaseFixture>, I
         Assert.Contains("HTTP: PATCH /api/locales/ => UpdateLocalesAsync", routes);
         Assert.Contains("HTTP: DELETE /api/locales/{id} => DeleteLocalesAsync", routes);
         Assert.Contains("HTTP: GET /api/locales/all-cultures => ListAllCultures", routes);
-        Assert.Contains("HTTP: GET /api/locales/culture/{code} => GetCultureDetail", routes);
+        Assert.Contains("HTTP: GET /api/locales/culture/{code} => GetCultureDetailAsync", routes);
         
        await _webApplication.StopAsync();
 
@@ -107,13 +114,13 @@ public class CraftLocalizationModuleTest : IClassFixture<TestDatabaseFixture>, I
         var response = await httpClient.GetAsync("/api/locales/culture/ta");
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync();
-        var culture = JsonSerializer.Deserialize<CultureCodeAndDetailDto>(content, new JsonSerializerOptions
+        var culture = JsonSerializer.Deserialize<LocaleWithCultureDetailDto>(content, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         });
         Assert.NotNull(culture);
-        Assert.Equal("ta", culture.CultureCode);
-        Assert.Equal("Tamil", culture.Detail);
+        Assert.Equal("ta", culture.CultureDetails.CultureCode);
+        Assert.Equal("Tamil", culture.CultureDetails.Detail);
         
         
         response = await httpClient.GetAsync("/api/locales/culture/blabla");
@@ -125,6 +132,25 @@ public class CraftLocalizationModuleTest : IClassFixture<TestDatabaseFixture>, I
 
         await _webApplication.StopAsync();
     }
+    
+    [Fact(DisplayName = "Craft Localization Module - CreateLocalesAsync - Should create a new locale")]
+    public async Task Test4()
+    {
+        var httpClient = _webApplication.Services.GetRequiredService<IHttpClientFactory>().CreateClient("client");
+        var createLocaleDto = new CreateLocaleDto("ta", "title", "ஹலோ உள்ளூர்மயமாக்கல் தொகுதி");
+
+        var json = JsonSerializer.Serialize(createLocaleDto);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await httpClient.PutAsync("/api/locales/", content);
+        response.EnsureSuccessStatusCode();
+        var responseContent = await response.Content.ReadAsStringAsync();
+        Assert.NotNull(responseContent);
+        Assert.NotEmpty(responseContent);
+        
+        httpClient.Dispose();
+        await _webApplication.StopAsync();
+    }
+
     
     public ValueTask DisposeAsync()
     {

@@ -5,6 +5,8 @@ using Craft.LocalizationModule.Dtos;
 using Craft.LocalizationModule.Extensions;
 using Craft.LocalizationModule.Infrastructure;
 using Craft.LocalizationModule.Services;
+using Craft.LocalizationModule.validators;
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -40,7 +42,8 @@ public  class LocalizationModule : CraftModule.CraftModule
         });
 
         services.AddScoped<ILocalizationService, LocalizationService>();
-        
+        services.AddScoped<IValidator<CreateLocaleDto>, CreateLocaleDtoValidator>();
+
     }
 
     public override IEndpointRouteBuilder AddRoutes(IEndpointRouteBuilder builder)
@@ -56,8 +59,8 @@ public  class LocalizationModule : CraftModule.CraftModule
         var scope = builder.ServiceProvider.CreateScope();
         var localizationService = scope.ServiceProvider.GetRequiredService<ILocalizationService>();
         endpoint.MapGet("/", localizationService.GetLocalizationsAsync)
-            .Produces<PaginatedResponse<LocalizationEntity>>();
-        endpoint.MapPut("/", localizationService.CreateLocalesAsync).Produces<Guid>();
+            .Produces<PaginatedResponse<LocaleDto>>();
+        endpoint.MapPut("/", localizationService.CreateLocalesAsync).Produces<Guid>(StatusCodes.Status201Created);
         endpoint.MapGet("/{id}", localizationService.GetLocalizationAsync)
             .Produces<LocalizationEntity>();
         endpoint.MapPatch("/", localizationService.UpdateLocalesAsync)
@@ -65,8 +68,8 @@ public  class LocalizationModule : CraftModule.CraftModule
         endpoint.MapDelete("/{id}", localizationService.DeleteLocalesAsync);
         endpoint.MapGet("/all-cultures", localizationService.ListAllCultures)
             .Produces<IReadOnlyList<CultureCodeAndDetailDto>>();
-        endpoint.MapGet("/culture/{code}", localizationService.GetCultureDetail)
-            .Produces<CultureCodeAndDetailDto>();
+        endpoint.MapGet("/culture/{code}", localizationService.GetCultureDetailAsync)
+            .Produces<LocaleWithCultureDetailDto>();
         
         
         return builder;

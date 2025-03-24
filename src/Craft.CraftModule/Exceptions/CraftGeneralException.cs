@@ -1,3 +1,4 @@
+using Craft.CraftModule.Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Kiota.Abstractions;
@@ -61,12 +62,9 @@ public class CraftGeneralException
         };
         context.Response.StatusCode = statusCode;
 
-        var response = new
-        {
-            error = "An error occurred while processing your request. See details for more information.",
-            details = exception.Message,
-            statusCode = statusCode,
-        };
+        var response =
+            new ErrorResponseDto("An error occurred while processing your request. See details for more information.",
+                exception.Message, statusCode);
 
         return context.Response.WriteAsJsonAsync(response);
     }

@@ -1,17 +1,12 @@
 using System.Net.Http.Json;
-using System.Text;
-using System.Text.Json;
+
 using Craft.CraftModule.Attributes;
+using Craft.CraftModule.Dtos;
 using Craft.CraftModule.Extensions;
 using Craft.LocalizationModule.Dtos;
 using Craft.LocalizationModule.Extensions;
-using Craft.LocalizationModule.Infrastructure;
-using Craft.LocalizationModule.Interfaces;
-using Craft.LocalizationModule.Services;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,15 +21,23 @@ public sealed class LocalizationModuleTest : CraftModule.CraftModule
     }
 }
 
-public class CraftLocalizationModuleTest : IClassFixture<TestDatabaseFixture>, IAsyncDisposable
+public class CraftLocalizationModuleTest : IClassFixture<TestDatabaseFixture>,  IAsyncLifetime
 {
-    private readonly TestDatabaseFixture _fixture;
-    private readonly LocalizationDbContext _dbContext;
-    private readonly WebApplicationBuilder _webApplicationBuilder;
-    private readonly WebApplication _webApplication;
+    private  TestDatabaseFixture _fixture;
+    private  WebApplicationBuilder _webApplicationBuilder;
+    private  WebApplication _webApplication;
+    private EndpointDataSource _endpointDataSource;
+    private IServiceScope _scope;
+    private HttpClient _httpClient;
+
     public CraftLocalizationModuleTest(TestDatabaseFixture fixture)
     {
         _fixture = fixture;
+    }
+    public async Task InitializeAsync()
+    {
+
+       await _fixture.InitializeAsync();
         var inMemorySettings = new Dictionary<string, string>
         {
             { "ConnectionStrings:DefaultConnection", _fixture.ConnectionString }
@@ -45,7 +48,6 @@ public class CraftLocalizationModuleTest : IClassFixture<TestDatabaseFixture>, I
             .AddInMemoryCollection(inMemorySettings)
             .Build();
         
-        _dbContext = fixture.DbContext;
         _webApplicationBuilder = WebApplication.CreateBuilder();
         
   
@@ -65,17 +67,20 @@ public class CraftLocalizationModuleTest : IClassFixture<TestDatabaseFixture>, I
         services.AddCraftModules([typeof(LocalizationModuleTest)]);
 
         _webApplication = _webApplicationBuilder.Build();
+        _webApplication.UseCraftGeneralException();
+
         _webApplication.MapCraftModulesEndpoint();
-        _webApplication.RunAsync();
+        
+         await _webApplication.StartAsync();
+         _scope = _webApplication.Services.CreateScope();
+        _endpointDataSource = _scope.ServiceProvider.GetRequiredService<EndpointDataSource>();
+        _httpClient = _scope.ServiceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("client");
     }
 
     [Fact(DisplayName = "Craft Localization Module default endpoints are registered.")]
-    public async Task Test1()
+    public void Test1()
     {
-        var endpointDataSource = _webApplication.Services.GetRequiredService<EndpointDataSource>();
-        Assert.NotNull(endpointDataSource);
-        
-        var routes = endpointDataSource
+        var routes = _endpointDataSource
             .Endpoints.Select(e => e.DisplayName)
             .ToList();
         
@@ -89,61 +94,71 @@ public class CraftLocalizationModuleTest : IClassFixture<TestDatabaseFixture>, I
         Assert.Contains("HTTP: GET /api/locales/all-cultures => ListAllCultures", routes);
         Assert.Contains("HTTP: GET /api/locales/culture/{code} => GetCultureDetailAsync", routes);
         
-       await _webApplication.StopAsync();
-
         
     }
 
-    [Fact(DisplayName = "Craft Localization Module - ListAllCultures - Should return all cultures")]
-    public async Task Test2()
-    {
-        var httpClient = _webApplication.Services.GetRequiredService<IHttpClientFactory>().CreateClient("client");
-        var cultures = await httpClient.GetFromJsonAsync<IReadOnlyList<CultureCodeAndDetailDto>>("/api/locales/all-cultures");
-        Assert.NotNull(cultures);
-        Assert.Equal(207, cultures.Count);
-        httpClient.Dispose();
-        await _webApplication.StopAsync();
-    }
-    
-    [Fact(DisplayName = "Craft Localization Module - Get culture details by code - Should return culture details otherwise null")]
+   [Fact(DisplayName = "Craft Localization Module - ListAllCultures - Should return all cultures")]
+   public async Task Test2()
+   {
+       var cultures = await _httpClient.GetFromJsonAsync<IReadOnlyList<CultureCodeAndDetailDto>>("/api/locales/all-cultures");
+       Assert.NotNull(cultures);
+       Assert.Equal(207, cultures.Count);
+   }
+   
+   [Fact(DisplayName = "Craft Localization Module - CreateLocalesAsync - Should create a new locale")]
     public async Task Test3()
     {
-        var httpClient = _webApplication.Services.GetRequiredService<IHttpClientFactory>().CreateClient("client");
-        var culture = await httpClient.GetFromJsonAsync<LocaleWithCultureDetailDto>("/api/locales/culture/ta");
-        Assert.NotNull(culture);
-        Assert.Equal("ta", culture.CultureDetails.CultureCode);
-        Assert.Equal("Tamil", culture.CultureDetails.Detail);
-        
-        
-        culture = await httpClient.GetFromJsonAsync<LocaleWithCultureDetailDto>("/api/locales/culture/blabla");
-        Assert.Null(culture);
-        
-        httpClient.Dispose();
-
-        await _webApplication.StopAsync();
-    }
-    
-    [Fact(DisplayName = "Craft Localization Module - CreateLocalesAsync - Should create a new locale")]
-    public async Task Test4()
-    {
-        var httpClient = _webApplication.Services.GetRequiredService<IHttpClientFactory>().CreateClient("client");
         var createLocaleDto = new CreateLocaleDto("ta", "title", "ஹலோ உள்ளூர்மயமாக்கல் தொகுதி");
-
-        var json = JsonSerializer.Serialize(createLocaleDto);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var response = await httpClient.PutAsync("/api/locales/", content);
-        response.EnsureSuccessStatusCode();
-        var responseContent = await response.Content.ReadAsStringAsync();
-        var guid = JsonSerializer.Deserialize<Guid>(responseContent);
-        Assert.IsType<Guid>(guid);
-        
-        httpClient.Dispose();
-        await _webApplication.StopAsync();
-    }
-
     
-    public ValueTask DisposeAsync()
+        var response = await _httpClient.PutAsJsonAsync("/api/locales/", createLocaleDto);
+        response.EnsureSuccessStatusCode();
+        var localId = await response.Content.ReadFromJsonAsync<Guid>();
+        Assert.IsType<Guid>(localId);
+        
+    }
+   
+   [Fact(DisplayName = "Craft Localization Module - Get culture details by code - Should return culture details otherwise null")]
+   public async Task Test4()
+   {
+       var culture = await _httpClient.GetFromJsonAsync<LocaleWithCultureDetailDto>("/api/locales/culture/ta");
+       Assert.NotNull(culture);
+       Assert.Equal("ta", culture.CultureDetails.CultureCode);
+       Assert.Equal("Tamil", culture.CultureDetails.Detail);
+       
+       culture = await _httpClient.GetFromJsonAsync<LocaleWithCultureDetailDto>("/api/locales/culture/blabla");
+       Assert.Null(culture);
+       
+   }
+   
+   [Fact(DisplayName = "Craft Localization Module - GetLocalizationAsync - Should return a locale by id")]
+   public async Task Test5()
+   {
+       var createLocaleDto = new CreateLocaleDto("en-US", "title", "Hello");
+       var response = await _httpClient.PutAsJsonAsync("/api/locales/", createLocaleDto);
+       response.EnsureSuccessStatusCode();
+       var guid = await response.Content.ReadFromJsonAsync<Guid>();
+       
+       var locale = await _httpClient.GetFromJsonAsync<LocaleDto>($"/api/locales/{guid}");
+       Assert.NotNull(locale);
+       Assert.Equal("en-US", locale.CultureCode);
+       Assert.Equal("title", locale.Key);
+       Assert.Equal("Hello", locale.Value);
+   }
+   
+   [Fact(DisplayName = "Craft Localization Module - CreateLocalesAsync - Should throw a bad request exception when passed invalid data")]
+   public async Task Test6()
+   {
+       var createLocaleDto = new CreateLocaleDto("unknown-culture-code", "title", "ஹலோ உள்ளூர்மயமாக்கல் தொகுதி");
+   
+       var response = await _httpClient.PutAsJsonAsync("/api/locales/", createLocaleDto);
+       Assert.False(response.IsSuccessStatusCode);
+       var errorResponseDto = await response.Content.ReadFromJsonAsync<ErrorResponseDto>();
+       Assert.NotNull(errorResponseDto);
+       Assert.Equal(400, errorResponseDto.StatusCode);
+   }
+   
+    public async Task  DisposeAsync()
     {
-        return ValueTask.CompletedTask;
+        _webApplication?.DisposeAsync();
     }
 }

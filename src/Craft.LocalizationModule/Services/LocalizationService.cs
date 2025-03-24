@@ -100,23 +100,25 @@ public sealed class LocalizationService(
             throw new ValidationException(validationResult.Errors);
         }
 
+       
+        // Check if the key already exists
+        var existing =
+            dbContext.Localizations.AsNoTracking()
+                .FirstOrDefault(x => x.Key == createLocaleDto.Key && x.CultureCode == createLocaleDto.CultureCode);
+        if (existing != null)
+        {
+            logger.LogWarning($"Duplicate localization key: {createLocaleDto.Key} for culture code: {createLocaleDto.CultureCode}");
+            throw new InvalidOperationException(
+                $"The key '{createLocaleDto.Key}' already exists for culture code '{createLocaleDto.CultureCode}'");
+        }
+
         var entity = new LocalizationEntity
         {
             CultureCode = createLocaleDto.CultureCode,
             Key = createLocaleDto.Key,
             Value = createLocaleDto.Value
         };
-        // Check if the key already exists
-        var existing =
-            dbContext.Localizations.FirstOrDefault(x => x.Key == entity.Key && x.CultureCode == entity.CultureCode);
-        if (existing != null)
-        {
-            logger.LogWarning($"Duplicate localization key: {entity.Key} for culture code: {entity.CultureCode}");
-            throw new InvalidOperationException(
-                $"The key '{entity.Key}' already exists for culture code '{entity.CultureCode}'");
-        }
-
-        await dbContext.Localizations.AddAsync(entity, cancellationToken);
+        dbContext.Localizations.Add(entity);
         await dbContext.SaveChangesAsync(cancellationToken);
         return entity.Id;
     }
@@ -127,14 +129,14 @@ public sealed class LocalizationService(
         var validationResult = await validator.ValidateAsync(
             new CreateLocaleDto(updateLocaleDto.CultureCode, updateLocaleDto.Key, updateLocaleDto.Value),
             cancellationToken);
-        
+
         if (!validationResult.IsValid)
         {
             logger.LogWarning("Validation failed for UpdateLocaleDto");
             throw new ValidationException(validationResult.Errors);
         }
 
-        
+
         var locale = await dbContext.Localizations.AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == updateLocaleDto.Id, cancellationToken);
 
@@ -162,8 +164,7 @@ public sealed class LocalizationService(
             logger.LogWarning($"No localization found for id: {id}");
             throw new InvalidOperationException($"The locale with id '{id}' was not found");
         }
-
-        dbContext.Localizations.RemoveRange(locale);
+        dbContext.Localizations.Remove(locale);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 

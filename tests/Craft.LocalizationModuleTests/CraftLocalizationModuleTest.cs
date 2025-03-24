@@ -1,3 +1,4 @@
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using Craft.CraftModule.Attributes;
@@ -97,10 +98,7 @@ public class CraftLocalizationModuleTest : IClassFixture<TestDatabaseFixture>, I
     public async Task Test2()
     {
         var httpClient = _webApplication.Services.GetRequiredService<IHttpClientFactory>().CreateClient("client");
-        var response = await httpClient.GetAsync("/api/locales/all-cultures");
-        response.EnsureSuccessStatusCode();
-        var content = await response.Content.ReadAsStringAsync();
-        var cultures = JsonSerializer.Deserialize<IReadOnlyList<CultureCodeAndDetailDto>>(content);
+        var cultures = await httpClient.GetFromJsonAsync<IReadOnlyList<CultureCodeAndDetailDto>>("/api/locales/all-cultures");
         Assert.NotNull(cultures);
         Assert.Equal(207, cultures.Count);
         httpClient.Dispose();
@@ -111,22 +109,14 @@ public class CraftLocalizationModuleTest : IClassFixture<TestDatabaseFixture>, I
     public async Task Test3()
     {
         var httpClient = _webApplication.Services.GetRequiredService<IHttpClientFactory>().CreateClient("client");
-        var response = await httpClient.GetAsync("/api/locales/culture/ta");
-        response.EnsureSuccessStatusCode();
-        var content = await response.Content.ReadAsStringAsync();
-        var culture = JsonSerializer.Deserialize<LocaleWithCultureDetailDto>(content, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        });
+        var culture = await httpClient.GetFromJsonAsync<LocaleWithCultureDetailDto>("/api/locales/culture/ta");
         Assert.NotNull(culture);
         Assert.Equal("ta", culture.CultureDetails.CultureCode);
         Assert.Equal("Tamil", culture.CultureDetails.Detail);
         
         
-        response = await httpClient.GetAsync("/api/locales/culture/blabla");
-        response.EnsureSuccessStatusCode();
-        content = await response.Content.ReadAsStringAsync();
-        Assert.Equal("null", content);
+        culture = await httpClient.GetFromJsonAsync<LocaleWithCultureDetailDto>("/api/locales/culture/blabla");
+        Assert.Null(culture);
         
         httpClient.Dispose();
 
@@ -144,8 +134,8 @@ public class CraftLocalizationModuleTest : IClassFixture<TestDatabaseFixture>, I
         var response = await httpClient.PutAsync("/api/locales/", content);
         response.EnsureSuccessStatusCode();
         var responseContent = await response.Content.ReadAsStringAsync();
-        Assert.NotNull(responseContent);
-        Assert.NotEmpty(responseContent);
+        var guid = JsonSerializer.Deserialize<Guid>(responseContent);
+        Assert.IsType<Guid>(guid);
         
         httpClient.Dispose();
         await _webApplication.StopAsync();

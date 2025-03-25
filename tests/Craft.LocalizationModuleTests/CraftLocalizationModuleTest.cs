@@ -215,6 +215,55 @@ public class CraftLocalizationModuleTest : IClassFixture<TestDatabaseFixture>, I
         Assert.Equal(400, error.StatusCode);
         Assert.Equal($"The locale with id '{guid}' was not found", error.Message);
     }
+
+    [Fact(DisplayName = "Craft Localization Module - GetLocalizationsAsync - Should return paginated localizations")]
+    public async Task Test11()
+    {
+        for (var i = 0; i < 5; i++)
+        {
+            var createLocaleDto = new CreateLocaleDto("en-US", $"page_title_{i}", $"Test page_{i}");
+            var response = await _httpClient.PutAsJsonAsync("/api/locales", createLocaleDto);
+            response.EnsureSuccessStatusCode();
+        }
+        
+        // Default values for page and pageSize are 0 and 10 respectively
+        var data = await _httpClient.GetFromJsonAsync<PaginatedResponse<LocaleDto>>("/api/locales");
+        Assert.Equal(1, data.TotalPages);
+        Assert.Equal(0, data.CurrentPage);
+        Assert.Equal(10, data.PageSize);
+        Assert.False(data.HasNext);
+        Assert.False(data.HasPrevious);
+        
+
+        // Get the first 2 localizations with page=0 and pageSize=2. Total localizations are 5
+        data = await _httpClient.GetFromJsonAsync<PaginatedResponse<LocaleDto>>("/api/locales?page=0&pageSize=2");
+        Assert.Equal(5, data.TotalCount);
+        Assert.Equal(3, data.TotalPages);
+        Assert.Equal(0, data.CurrentPage);
+        Assert.Equal(2, data.PageSize);
+        Assert.True(data.HasNext);
+        Assert.False(data.HasPrevious);
+        
+        
+        // Filter by value
+        data = await _httpClient.GetFromJsonAsync<PaginatedResponse<LocaleDto>>("/api/locales?value=Test page_1");
+        Assert.Equal(1, data.TotalCount);
+        Assert.Equal(1, data.TotalPages);
+        Assert.Equal(0, data.CurrentPage);
+        Assert.Equal(10, data.PageSize);
+        Assert.False(data.HasNext);
+        Assert.False(data.HasPrevious);
+    }
+
+    [Fact(DisplayName =
+        "Craft Localization Module - GetLocalizationsAsync - Should return empty list when no localizations found")]
+    public async Task Test12()
+    {
+        var data = await _httpClient.GetFromJsonAsync<PaginatedResponse<LocaleDto>>("/api/locales?cultureCode=unknown-culture-code");
+        Assert.Equal(0, data.Items.Count());
+        Assert.False(data.HasNext);
+        Assert.False(data.HasPrevious);
+    }
     
     public async Task DisposeAsync()
     {

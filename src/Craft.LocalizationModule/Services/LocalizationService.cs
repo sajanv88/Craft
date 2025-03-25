@@ -36,40 +36,27 @@ public sealed class LocalizationService(
             logger.LogInformation(
                 $"Filtering by supported culture codes {string.Join(",", localizationConfiguration.SupportedCultureCodes)}");
             queryable = queryable.Where(l
-                    => localizationConfiguration.SupportedCultureCodes.Contains(l.CultureCode))
-                .Skip(cp * limit)
-                .Take(limit);
+                => localizationConfiguration.SupportedCultureCodes.Contains(l.CultureCode));
         }
-        else
-        {
-            queryable = queryable
-                .Skip(cp * limit)
-                .Take(limit);
-        }
+
 
         if (!string.IsNullOrWhiteSpace(cultureCode))
         {
-            queryable = queryable.Where(x => x.CultureCode == cultureCode)
-                .Skip(cp * limit)
-                .Take(limit);
+            queryable = queryable.Where(x => x.CultureCode == cultureCode);
         }
 
         if (!string.IsNullOrWhiteSpace(key))
         {
-            queryable = queryable.Where(x => x.Key == key)
-                .Skip(cp * limit)
-                .Take(limit);
+            queryable = queryable.Where(x => x.Key == key);
         }
 
         if (!string.IsNullOrWhiteSpace(value))
         {
-            queryable = queryable.Where(x => x.Value == value)
-                .Skip(cp * limit)
-                .Take(limit);
+            queryable = queryable.Where(x => x.Value == value);
         }
 
         var total = await queryable.CountAsync(cancellationToken);
-        var data = await queryable.ToListAsync(cancellationToken);
+        var data = await queryable.Skip(cp * limit).Take(limit).ToListAsync(cancellationToken);
         var results = data.ToList().AsReadOnly();
         logger.LogInformation($"Found {results.Count} localizations");
 
@@ -100,14 +87,15 @@ public sealed class LocalizationService(
             throw new ValidationException(validationResult.Errors);
         }
 
-       
+
         // Check if the key already exists
         var existing =
             dbContext.Localizations
                 .FirstOrDefault(x => x.Key == createLocaleDto.Key && x.CultureCode == createLocaleDto.CultureCode);
         if (existing != null)
         {
-            logger.LogWarning($"Duplicate localization key: {createLocaleDto.Key} for culture code: {createLocaleDto.CultureCode}");
+            logger.LogWarning(
+                $"Duplicate localization key: {createLocaleDto.Key} for culture code: {createLocaleDto.CultureCode}");
             throw new InvalidOperationException(
                 $"The key '{createLocaleDto.Key}' already exists for culture code '{createLocaleDto.CultureCode}'");
         }
@@ -164,6 +152,7 @@ public sealed class LocalizationService(
             logger.LogWarning($"No localization found for id: {id}");
             throw new InvalidOperationException($"The locale with id '{id}' was not found");
         }
+
         dbContext.Localizations.Remove(locale);
         await dbContext.SaveChangesAsync(cancellationToken);
     }

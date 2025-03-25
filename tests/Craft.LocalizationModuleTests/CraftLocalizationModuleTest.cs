@@ -203,6 +203,18 @@ public class CraftLocalizationModuleTest : IClassFixture<TestDatabaseFixture>, I
         var locale = await response.Content.ReadFromJsonAsync<LocaleDto>();
         Assert.Null(locale);
     }
+
+    [Fact(DisplayName =
+        "Craft Localization Module - DeleteLocalesAsync - Should throw a not found exception when locale not found")]
+    public async Task Test10()
+    {
+        var guid = Guid.NewGuid();
+        var response = await _httpClient.DeleteAsync($"/api/locales/{guid}");
+        var error = await response.Content.ReadFromJsonAsync<ErrorResponseDto>();
+        Assert.NotNull(error);
+        Assert.Equal(400, error.StatusCode);
+        Assert.Equal($"The locale with id '{guid}' was not found", error.Message);
+    }
     
     public async Task DisposeAsync()
     {

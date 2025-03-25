@@ -38,7 +38,8 @@ public  class LocalizationModule : CraftModule.CraftModule
         
         services.AddDbContext<LocalizationDbContext>(o =>
         {
-            o.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"));
+            o.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"))
+                .EnableSensitiveDataLogging();
         });
 
         services.AddScoped<ILocalizationService, LocalizationService>();

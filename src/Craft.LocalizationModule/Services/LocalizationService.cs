@@ -103,7 +103,7 @@ public sealed class LocalizationService(
        
         // Check if the key already exists
         var existing =
-            dbContext.Localizations.AsNoTracking()
+            dbContext.Localizations
                 .FirstOrDefault(x => x.Key == createLocaleDto.Key && x.CultureCode == createLocaleDto.CultureCode);
         if (existing != null)
         {
@@ -137,7 +137,7 @@ public sealed class LocalizationService(
         }
 
 
-        var locale = await dbContext.Localizations.AsNoTracking()
+        var locale = await dbContext.Localizations
             .FirstOrDefaultAsync(x => x.Id == updateLocaleDto.Id, cancellationToken);
 
         if (locale is null)
@@ -156,7 +156,7 @@ public sealed class LocalizationService(
 
     public async Task DeleteLocalesAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var locale = await dbContext.Localizations.AsNoTracking()
+        var locale = await dbContext.Localizations
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
         if (locale is null)

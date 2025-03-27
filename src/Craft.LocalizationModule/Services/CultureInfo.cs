@@ -1,11 +1,20 @@
 namespace Craft.LocalizationModule.Services;
 
+/// <summary>
+///     A static class that contains all the cultures
+/// </summary>
 public static class CultureInfo
 {
-    // This is a list of all cultures. 
+    // This is a list of all cultures.
     // Credits: https://gist.github.com/hikalkan/afe23b47c30fea418f607561d277c510
-    
-    public static Dictionary<string, string> AllCultures = new Dictionary<string, string>
+
+    /// <summary>
+    ///     Dictionary of all cultures
+    /// </summary>
+    public static Dictionary<string, string> AllCultures = new Dictionary<
+        string,
+        string
+    >
     {
         { "af", "Afrikaans" },
         { "af-ZA", "Afrikaans - South Africa" },
@@ -213,6 +222,6 @@ public static class CultureInfo
         { "zh-HK", "Chinese - Hong Kong SAR" },
         { "zh-MO", "Chinese - Macau SAR" },
         { "zh-SG", "Chinese - Singapore" },
-        { "zh-TW", "Chinese - Taiwan" }
+        { "zh-TW", "Chinese - Taiwan" },
     };
 }

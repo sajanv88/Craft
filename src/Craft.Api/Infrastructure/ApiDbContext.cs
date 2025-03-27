@@ -10,12 +10,10 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options)
 {
     public DbSet<TodoEntity> Todos { get; set; }
 
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        
-        
+
         modelBuilder.ConfigureLocalization();
     }
 }

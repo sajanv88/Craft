@@ -8,8 +8,9 @@ public class ApiDbContextFactory : IDesignTimeDbContextFactory<ApiDbContext>
     public ApiDbContext CreateDbContext(string[] args)
     {
         var configuration = BuildConfiguration();
-        var builder = new DbContextOptionsBuilder<ApiDbContext>()
-            .UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
+        var builder = new DbContextOptionsBuilder<ApiDbContext>().UseNpgsql(
+            configuration.GetConnectionString("DefaultConnection")
+        );
         return new ApiDbContext(builder.Options);
     }
 
@@ -17,8 +18,15 @@ public class ApiDbContextFactory : IDesignTimeDbContextFactory<ApiDbContext>
     {
         var builder = new ConfigurationBuilder();
         builder.SetBasePath(Directory.GetCurrentDirectory());
-        builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-        builder.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true);
+        builder.AddJsonFile(
+            "appsettings.json",
+            optional: false,
+            reloadOnChange: true
+        );
+        builder.AddJsonFile(
+            $"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json",
+            optional: true
+        );
         return builder.Build();
     }
 }

@@ -8,7 +8,7 @@ public class TestDatabaseFixture : IAsyncLifetime
 {
     private readonly PostgreSqlContainer _postgreSqlContainer;
     private DbContextOptions<LocalizationDbContext> _dbContextOptions;
-    
+
     public string ConnectionString { get; private set; }
     public LocalizationDbContext DbContext { get; private set; }
 
@@ -28,26 +28,29 @@ public class TestDatabaseFixture : IAsyncLifetime
         Console.WriteLine("Starting PostgreSQL container...");
         // 1. Start the container first
         await _postgreSqlContainer.StartAsync();
-        
+
         // 2. Get the connection string AFTER container is started
         ConnectionString = _postgreSqlContainer.GetConnectionString();
         Console.WriteLine($"Full connection string: {ConnectionString}");
         Console.WriteLine($"Container status: {_postgreSqlContainer.State}");
-        
+
         // 3. Configure DbContext options
         _dbContextOptions = new DbContextOptionsBuilder<LocalizationDbContext>()
-            .UseNpgsql(ConnectionString, options => 
-            {
-                options.EnableRetryOnFailure();
-                options.CommandTimeout(30);
-            })
+            .UseNpgsql(
+                ConnectionString,
+                options =>
+                {
+                    options.EnableRetryOnFailure();
+                    options.CommandTimeout(30);
+                }
+            )
             .EnableSensitiveDataLogging()
             .EnableDetailedErrors()
             .Options;
 
         // 4. Create the DbContext instance
         DbContext = new LocalizationDbContext(_dbContextOptions);
-        
+
         // 5. Ensure database is created
         await DbContext.Database.EnsureCreatedAsync();
         Console.WriteLine("Database schema initialized");
@@ -56,12 +59,9 @@ public class TestDatabaseFixture : IAsyncLifetime
     public async Task DisposeAsync()
     {
         // Clean up in reverse order
-        if (DbContext != null)
-        {
-            await DbContext.Database.EnsureDeletedAsync();
-            await DbContext.DisposeAsync();
-        }
-        
+        await DbContext.Database.EnsureDeletedAsync();
+        await DbContext.DisposeAsync();
+
         await _postgreSqlContainer.DisposeAsync();
     }
 

@@ -5,7 +5,9 @@ namespace Craft.LocalizationModuleTests;
 
 public class CraftLocalizationExtensionsTest
 {
-    [Fact(DisplayName = "AddLocalization - Should add localization to the service collection")]
+    [Fact(
+        DisplayName = "AddLocalization - Should add localization to the service collection"
+    )]
     public void Test1()
     {
         // Arrange
@@ -21,12 +23,15 @@ public class CraftLocalizationExtensionsTest
 
         // Assert
         var serviceProvider = services.BuildServiceProvider();
-        var localConfig = serviceProvider.GetRequiredService<LocalizationConfiguration>();
+        var localConfig =
+            serviceProvider.GetRequiredService<LocalizationConfiguration>();
         Assert.NotNull(localConfig);
-        
+
         Assert.Equal(2, localConfig.SupportedCultureCodes.Count);
-        Assert.Equal("/api/custom_localizations", localConfig.EndpointContextPath);
+        Assert.Equal(
+            "/api/custom_localizations",
+            localConfig.EndpointContextPath
+        );
         Assert.Equal("manage_localizations", localConfig.PolicyName);
-        
     }
 }

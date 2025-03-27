@@ -63,9 +63,8 @@ builder.Services.AddCraftKeycloakAuthentication(
     }
 );
 
-
 builder.Services.AddCraftLocalization(options =>
-{ 
+{
     options.SupportedCultureCodes = ["en-US", "nl-NL", "ta-IN"];
 });
 
@@ -78,7 +77,19 @@ builder.Services.AddDbContext<ApiDbContext>(o =>
     );
     o.UseNpgsql(connectionString);
 });
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        "api",
+        policy =>
+        {
+            policy.WithOrigins(
+                "http://localhost:3000",
+                "https://craft-ui.dev.sajankumarv.tech"
+            );
+        }
+    );
+});
 
 var app = builder.Build();
 
@@ -102,6 +113,8 @@ if (app.Environment.IsDevelopment())
 app.UseCraftGeneralException();
 
 app.UseHttpsRedirection();
+
+app.UseCors("api");
 
 app.UseAuthentication();
 

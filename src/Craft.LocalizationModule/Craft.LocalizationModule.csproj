@@ -4,6 +4,20 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <CSharpier_FrameworkVersion>net9.0</CSharpier_FrameworkVersion>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+    <PropertyGroup>
+        <PackageId>Craft.LocalizationModule</PackageId>
+        <Version>1.0.4</Version>
+        <Authors>Sajankumar Vijayan</Authors>
+        <Description>
+            The localizationModule in Craft is a utility designed to handle text localization and internationalization (i18n) within your project. It provides methods for loading, managing, and retrieving translated strings based on the user's locale or language preferences.
+        </Description>
+        <PackageProjectUrl>https://github.com/sajanv88/Craft</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/sajanv88/Craft.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>

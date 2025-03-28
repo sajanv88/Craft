@@ -6,11 +6,29 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Craft.Api.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class CreateMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Craft_Locales",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CultureCode = table.Column<string>(
+                        type: "text",
+                        nullable: false
+                    ),
+                    Key = table.Column<string>(type: "text", nullable: false),
+                    Value = table.Column<string>(type: "text", nullable: false),
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Craft_Locales", x => x.Id);
+                }
+            );
+
             migrationBuilder.CreateTable(
                 name: "Todos",
                 columns: table => new
@@ -22,8 +40,7 @@ namespace Craft.Api.Infrastructure.Migrations
                     ),
                     IsCompleted = table.Column<bool>(
                         type: "boolean",
-                        nullable: false,
-                        defaultValue: false
+                        nullable: false
                     ),
                 },
                 constraints: table =>
@@ -36,6 +53,8 @@ namespace Craft.Api.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(name: "Craft_Locales");
+
             migrationBuilder.DropTable(name: "Todos");
         }
     }

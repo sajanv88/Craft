@@ -203,8 +203,8 @@ public static class CraftModuleExtensions
         module.PreInitialization(services);
         module.Initialize();
         InitializedModules.Add(moduleType);
+        services.AddSingleton(moduleType, module);
         Console.WriteLine($"🚀 {moduleType.Name} initialized.");
         module.PostInitialization(services);
-        services.AddSingleton(moduleType, module);
     }
 }

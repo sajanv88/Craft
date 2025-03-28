@@ -9,7 +9,7 @@
     </PropertyGroup>
     <PropertyGroup>
         <PackageId>Craft.KeycloakModule</PackageId>
-        <Version>1.0.3</Version>
+        <Version>1.0.4</Version>
         <Authors>Sajankumar Vijayan</Authors>
         <Description>
             The Keycloak Module for Craft simplifies the integration of Keycloak-based authentication and authorization into your application. 

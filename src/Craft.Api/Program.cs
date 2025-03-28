@@ -4,9 +4,10 @@ using Craft.CraftModule;
 using Craft.CraftModule.Attributes;
 using Craft.CraftModule.Extensions;
 using Craft.KeycloakModule;
-using Craft.KeycloakModule.Enums;
 using Craft.KeycloakModule.Extensions;
 using Craft.KeycloakModule.Options;
+using Craft.LocalizationModule;
+using Craft.LocalizationModule.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -17,6 +18,8 @@ var builder = WebApplication.CreateBuilder(args);
 var keycloakSettings = builder
     .Configuration.GetSection("KeycloakSettings")
     .Get<KeycloakSettings>();
+
+builder.Services.AddOpenApiOauth(builder.Configuration);
 
 builder.Services.AddCraftKeycloakAuthorization(options =>
 {
@@ -60,7 +63,12 @@ builder.Services.AddCraftKeycloakAuthentication(
     }
 );
 
-builder.Services.AddOpenApiOauth(builder.Configuration);
+builder.Services.AddCraftLocalization(options =>
+{
+    options.SupportedCultureCodes = ["en-US", "nl-NL", "ta-IN"];
+    options.PolicyName = "api";
+    options.EndpointContextPath = "/api/locales";
+});
 
 builder.Services.AddCraftModulesFromAssembly(typeof(Program).Assembly);
 
@@ -70,6 +78,19 @@ builder.Services.AddDbContext<ApiDbContext>(o =>
         "DefaultConnection"
     );
     o.UseNpgsql(connectionString);
+});
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        "api",
+        policy =>
+        {
+            policy.WithOrigins(
+                "http://localhost:3000",
+                "https://craft-ui.dev.sajankumarv.tech"
+            );
+        }
+    );
 });
 
 var app = builder.Build();
@@ -95,6 +116,8 @@ app.UseCraftGeneralException();
 
 app.UseHttpsRedirection();
 
+app.UseCors("api");
+
 app.UseAuthentication();
 
 app.UseAuthorization();
@@ -104,6 +127,7 @@ app.MapCraftModulesEndpoint();
 app.Run();
 
 [DependsOn(typeof(KeycloakModule))]
+[DependsOn(typeof(LocalizationModule))]
 public sealed class ApiModule : CraftModule
 {
     public override IEndpointRouteBuilder AddRoutes(
@@ -112,6 +136,7 @@ public sealed class ApiModule : CraftModule
     {
         var app = builder.MapGroup("/api");
         app.MapGet("/", () => "Hello from ApiModule!");
+
         return builder;
     }
 }

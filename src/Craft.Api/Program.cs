@@ -66,6 +66,8 @@ builder.Services.AddCraftKeycloakAuthentication(
 builder.Services.AddCraftLocalization(options =>
 {
     options.SupportedCultureCodes = ["en-US", "nl-NL", "ta-IN"];
+    options.PolicyName = "api";
+    options.EndpointContextPath = "/api/locales";
 });
 
 builder.Services.AddCraftModulesFromAssembly(typeof(Program).Assembly);

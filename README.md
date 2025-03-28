@@ -191,6 +191,8 @@ This allows each module to have its own isolated database context, improving mod
 - Craft.CraftModule
 - Craft.KeycloakModule
   - [How to use Craft.KeycloakModule](docs/Keycloak.md)
+- Craft.LocalizationModule
+  - [How to use Craft.LocalizationModule](docs/Localization.md)
 
 ### Future Plans
 - Craft.LocalizationModule

@@ -24,8 +24,8 @@ jobs:
                 run: |
                     mkdir -p ./artifacts
                     dotnet pack src/Craft.CraftModule/Craft.CraftModule.csproj --configuration Release --no-build --output ./artifacts
-#                    dotnet pack src/Craft.KeycloakModule/Craft.KeycloakModule.csproj --configuration Release --no-build --output ./artifacts
-#                    dotnet pack src/Craft.LocalizationModule/Craft.LocalizationModule.csproj --configuration Release --no-build --output ./artifacts
+                    dotnet pack src/Craft.KeycloakModule/Craft.KeycloakModule.csproj --configuration Release --no-build --output ./artifacts
+                    dotnet pack src/Craft.LocalizationModule/Craft.LocalizationModule.csproj --configuration Release --no-build --output ./artifacts
                 
                 working-directory: ${{ github.workspace }}
             

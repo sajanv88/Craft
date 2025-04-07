@@ -8,6 +8,8 @@ using Craft.KeycloakModule.Extensions;
 using Craft.KeycloakModule.Options;
 using Craft.LocalizationModule;
 using Craft.LocalizationModule.Extensions;
+using Craft.MultitenancyModule;
+using Craft.MultitenancyModule.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -62,6 +64,15 @@ builder.Services.AddCraftKeycloakAuthentication(
         };
     }
 );
+
+
+builder.Services.AddMultitenancyModule(options =>
+{
+    options.DbContextType = typeof(ApiDbContext);
+    options.DatabaseConnectionString =
+        builder.Configuration.GetConnectionString("DefaultConnection");
+    options.EnableHost = true;
+});
 
 builder.Services.AddCraftLocalization(options =>
 {
@@ -127,6 +138,7 @@ app.MapCraftModulesEndpoint();
 app.Run();
 
 [DependsOn(typeof(KeycloakModule))]
+[DependsOn(typeof(MultitenancyModule))]
 [DependsOn(typeof(LocalizationModule))]
 public sealed class ApiModule : CraftModule
 {

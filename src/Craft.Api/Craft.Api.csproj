@@ -29,6 +29,8 @@
       <ProjectReference Include="..\Craft.KeycloakModule\Craft.KeycloakModule.csproj" />
       
       <ProjectReference Include="..\Craft.LocalizationModule\Craft.LocalizationModule.csproj" />
+      
+      <ProjectReference Include="..\Craft.MultitenancyModule\Craft.MultitenancyModule.csproj" />
     </ItemGroup>
 
 </Project>
